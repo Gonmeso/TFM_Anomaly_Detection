@@ -5,11 +5,7 @@
 %%%%%%%%%%%%%%%%
 %%% CREDITOS %%%
 %%%%%%%%%%%%%%%%
-\chapter*{Créditos/Copyright}
-
-Una página con la especificación de créditos/copyright para el proyecto (ya sea aplicación por un lado y documentación por el otro, o unificadamente), así como la del uso de marcas, productos o servicios de terceros (incluidos códigos fuente). Si una persona diferente al autor colaboró en el proyecto, tiene que quedar explicitada su identidad y qué hizo.
-
-A continuación se ejemplifica el caso más habitual, aunque se puede modificar por cualquier otra alternativa:
+\chapter*{Copyright}
 
 \vspace{1cm}
 
@@ -32,23 +28,23 @@ Esta obra está sujeta a una licencia de Reconocimiento -  NoComercial - SinObra
 	\renewcommand{\arraystretch}{2}
 	\begin{tabular}{r | l}
 		\hline
-		Título del trabajo: & Descriptivo del trabajo\\
+		Título del trabajo: & Detección de anomalías en el entorno del Internet de las cosas\\
 		\hline
-        Nombre del autor: & Nombre y dos apellidos\\
+        Nombre del autor: & Gonzalo Pedro Mellizo-Soto Díaz\\
 		\hline
-        Nombre del colaborador/a docente: & Nombre y dos apellidos\\
+        Nombre del colaborador/a docente: & Carlos Hernández Gañán\\
 		\hline
-        Nombre del PRA: & Nombre y dos apellidos\\
+        Nombre del PRA: & Jordi Casas Roma\\
 		\hline
-        Fecha de entrega (mm/aaaa): & MM/AAAA\\
+        Fecha de entrega (mm/aaaa): & 06/2019\\
 		\hline
         Titulación o programa: & Plan de estudios\\
 		\hline
-        Área del Trabajo Final: & El nombre de la asignatura de TF\\
+        Área del Trabajo Final: & Minería de datos y machine learning \\
 		\hline
-        Idioma del trabajo: & Catalán, español o inglés\\
+        Idioma del trabajo: Español\\
 		\hline
-        Palabras clave & Máximo 3 palabras clave\\
+        Palabras clave & Machine Learning, IOT, Anomaly Detection\\
 		\hline
 	\end{tabular}
 \end{table}
@@ -56,14 +52,19 @@ Esta obra está sujeta a una licencia de Reconocimiento -  NoComercial - SinObra
 %%%%%%%%%%%%%%%%%%%
 %%% DEDICATORIA %%%
 %%%%%%%%%%%%%%%%%%%
-\chapter*{Dedicatoria/Cita}
+\chapter*{Cita}
 
-Breves palabras de dedicatoria y/o una cita.
+\setlength\epigraphwidth{.8\textwidth}
+\setlength\epigraphrule{0pt}
+
+\epigraph{\itshape``Nuestro lema es: más humanos que los humanos"}{Eldon Tyrell, \textit{Blade Runner}}
 
 %%%%%%%%%%%%%%%%%%%
 %%% Agradecimientos %%%
 %%%%%%%%%%%%%%%%%%%
 \chapter*{Agradecimientos}
+
+TO BE DEFINED
 
 Si se considera oportuno, mencionar a las personas, empresas o instituciones que hayan contribuido en la realización de este proyecto.
 
@@ -75,16 +76,12 @@ Si se considera oportuno, mencionar a las personas, empresas o instituciones que
 
 \onehalfspacing
 
-Texto con la síntesis del proyecto, esto es, un texto en el cual se explica de manera concisa la definición del proyecto/problema abordado, sus objetivos/métodos de resolución, y los resultados y conclusiones (no puede ser una lista, sino un texto continuo redactado de manera estructurada). Si es necesario poner una referencia en este texto, ésta será anotada a pie de la misma página. En este apartado se puede usar un lenguaje más literario y coloquial que para el resto del documento.
+In recent years the amount of connected devices has greatly increased, with an increasing number of applications in the industry each day. This devices can be subject of attacks causing instability or data leaks that can be dangerous both for the users and the enterprises, in order to avoid or confront them, security and early detection are become a must in a connected world. The focus is the monitoring and detection of the attacks in Internet of Things devices using state of the art Machine Learning techniques. Models such as SVM, DBScan or Isolation Forests have been used and assembled in order to identify with a better accuracy when an attack is happening. With this assembly attack detection has increased up to 15\% comparing to traditional methods and individual model usages and times have been considerably reduced. An active use of Machine Learning models has shown a great improvement at anomaly detection by securing the devices and decreasing the reaction times when facing attacks.
 
-El Abstract se escribirá por duplicado. Una de las versiones tiene que ser \textbf{obligatoriamente en inglés}. La otra versión tiene que estar escrita en catalán o español. En caso de no escribir el resto del documento en inglés, será necesario escribir la segunda versión del Abstract en el idioma utilizado para el resto de la memoria. La palabra Abstract se cambiará por ``\textbf{Resum}'' o ``\textbf{Resumen}'' en la versión catalana y española, respectivamente. 
+\vspace{1cm}
 
-Extensión recomendada: 250 palabras máximo.
-
-Como escribir un buen Abstract (en inglés):
-
-\href{http://www.ece.cmu.edu/~koopman/essays/abstract.html}{http://www.ece.cmu.edu/~koopman/essays/abstract.html}
+Durante los últimos año se encuentra una creciente cantidad de dispositivos conectados entre si, con cada vez más aplicaciones en la industria. Estos dispositivos pueden ser atacados y provocar inestabilidad o una fuga de datos, por lo tanto la protección y la pronta detección de ataques y//o anomalías es vital en un mundo cada vez más conectado. El objetivo es la monitorización y detección de estos ataques en dipositivos del \textit{Internet of Things} utilizando técnicas del estado del arte de Machine Learning, para su detección y poder así responder con una mayor rapidez a los ataques. Para la detección se han utilizado modelos estádisticos, como SVM, DBScan o Isolation Forests, que en su conjunto permitan identificar con mayor precisión cuando se está produciendo un ataque. El conjunto de la clusterización con la clasificación de punto anómalos muestra una mayor robustez, frente al uso individual de cada uno de los modelos aumentando la detección en hasta un 15\%. Se demuestra como el uso de los modelos permite proteger los dispositivos y mejorar la seguridad al disminuir los tiempos de reacción frente a los ataques.
 
 \vspace{1.5cm}
 
-\textbf{Palabras clave}: Keywords del trabajo separadas por comas. Por ejemplo para este documento podrían ser Modelo, Pauta, Plantilla, Memoria, Trabajo de Final de Grado/Máster
+\textbf{Palabras clave}: Machine Learning, IOT, Anomaly Detection
