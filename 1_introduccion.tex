@@ -4,16 +4,18 @@
 
 %%% SECTION
 \section{Contexto y justificación del Trabajo}
-Cada vez se encuentran más dispositivos conectados entre si no solo en la industria, si no también en los hogares, esta conexión entre dispositivos los hace vulberables a ataques informáticos que pueden afectar en gran medida a los usuarios, no solo pueden provocar un mal funcionamiento de los mismos, si no que también puede provocar la fuga de datos de distinta sensibilidad. La previsión en los futuros años es de cada vez estar más conectados y una pronta detección de los ataques puedo ayudar a evitar los problemas derivados de los mismos, mediante una pronta reacción o frente a la previsión de un ataque.
+Cada vez se encuentran más dispositivos conectados entre sí no solo en la industria, si no también en los hogares, esta conexión entre dispositivos los hace vulnerables a ataques informáticos que pueden afectar en gran medida a los usuarios, no solo pueden provocar un mal funcionamiento de los mismos, si no que también puede provocar la fuga de datos de distinta sensibilidad. La previsión en los futuros años es de cada vez estar más conectados y una pronta detección de los ataques puedo ayudar a evitar los problemas derivados de los mismos, mediante una pronta reacción o frente a la previsión de un ataque.
 
 \vspace{0.5cm}
 
-Actualmente se utilizan distintas medidas de seguridad como control de acceso físico al dispositivo, encriptación de datos, firewalls, securización de red, etc... Sin embargo, en muchos casos la detección de anomalías aplican un umbral estacionario, provocando que en el caso de un ataque ya sea demasiado tarde para reaccionar o no sean capaz de identificar patrones extraños previos al ataque. Con la aplicación de nuevas técnicas se pretende mejorar los tiempos de reacción e incluso predecir cuando puede suceder un ataque.
+Actualmente se utilizan distintas medidas de seguridad como control de acceso físico al dispositivo, encriptación de datos, firewalls, securización de red, etc... Sin embargo, en muchos casos la detección de anomalías aplican un umbral estacionario, provocando que en el caso de un ataque ya sea demasiado tarde para reaccionar o no sean capaz de identificar patrones extraños previos al ataque. Con la aplicación de nuevas técnicas se pretende mejorar los tiempos de reacción e incluso predecir cuándo puede suceder un ataque.
 
 \section{Explicación de la motivación personal}
-La razón principal de la selección del proyecto es la posibilidad de aprender y utilizar técnicas de Machine Learning en un sector desconocido que permita diversificar conocimientos. Cada vez más todo se encuentra conectado e investigar como clasificar cuando se esta produciendo un ataque permite profundizar en conocimientos de seguiridad y aplicarlos en un problema real. 
+La razón principal de la selección del proyecto es la posibilidad de aprender y utilizar técnicas de Machine Learning en un sector desconocido que permita diversificar conocimientos. Cada vez más todo se encuentra conectado e investigar cómo clasificar cuando se está produciendo un ataque permite profundizar en conocimientos de seguridad y aplicarlos en un problema real.
 
-La aplicación de técnicas en un problema real ayuda a comprender mejor el uso de las herramientas y el por qué y cuando se deben de utilizar. De este modo, se añade un nuevo conocimiento que puede aportar en el ámbito profesional y puede utilizarse también en un entorno privado.
+\vspace{0.5cm}
+
+La aplicación de técnicas en un problema real ayuda a comprender mejor el uso de las herramientas y el por qué y cuándo se deben de utilizar. De este modo, se añade un nuevo conocimiento que puede aportar en el ámbito profesional y puede utilizarse también en un entorno privado.
 
 
 \section{Objetivos del Trabajo}
@@ -40,74 +42,43 @@ La pérdida de control de los dispositivos o la fuga de información de los mism
 
 
 \section{Enfoque y método seguido}
+El enfoque es aplicado al conocer el problema y se intenta dar respuesta a preguntas específicas, mediante la aplicación de los conocimientos obtenidos y la evaluación de la propia aplicación de los mismos.  \par
+
+\vspace{0.5cm}
+
+El método seguido del desarrollo se va a implementar dentro del marco de trabajo \textit{Agile} pensando el desarrollo de la solución como un producto, de este modo se podrá iterar sobre una arquitectura definida y enfocarse en el desarrollo del producto en su total, frente a un modelo tradicional de cascada donde cada fase de desarrollo recae en una sola parte del total.
+
+\vspace{0.5cm}
+
+El formato de entrega será mediante un \textit{minimum viable product} (MVP) en sprints de dos semanas durante el periodo de desarrollo y evaluación de las necesidades según la evolución del producto.
+
+\section{Planificación del Trabajo}
+
+Para la planificación del trabajo se han subdividido las tareas principales y se han mostrado en el siguiente diagrama de Gantt \ref{fig:gantt}.
+
+\begin{itemize}
+    \item Pec01 - Definición
+    \item Pec01 - Planificación
+    \item Pec02 - Búsqueda de fuentes del estado del arte
+    \item Pec02 - Lectura de estado del arte
+    \item Pec02 - Justificación de estado del arte
+    \item Pec02 - Redacción
+    \item Pec02 - Refinamiento de objetivos
+    \item Pec03 - Planificación de Sprints
+    \item Pec03 - Sprint 1
+    \item Pec03 - Sprint 2
+    \item Pec03 - Sprint 3
+    \item Pec03 - Refinamiento/Redacción
+    \item Pec04 - Revisión apartados anteriores
+    \item Pec04 - Redacción nuevos apartados
+    \item Pec05 - Presentación y defensa
+\end{itemize}
 
 
 
-
-\begin{figure}
+\begin{figure}[h]
 	\centering
-	\includegraphics[width=0.6\textwidth]{figs/image1.png}
-	\caption{Pie de la imagen.}
-	\label{fig:context-anoni1}
+	\includegraphics[width=1\textwidth]{figs/gantt_init.PNG}
+	\caption{Planificación de tareas}
+	\label{fig:gantt}
 \end{figure}
-
-\subsection{Ejemplo de subsection}
-
-Aunque se han realizado importantes avances en preservación de la privacidad en publicación de datos, tales como el modelo \textit{k}-anonymity \cite{Sweeney:2002}.
-
-Un ejemplo de pseudo-código se puede encontrar en el Código \ref{code:RandomSwitch-1}
-
-\begin{algorithm}
-	\caption{Pseudocódigo del algoritmo \textit{Random Switch}}
-	\label{code:RandomSwitch-1}
-	\begin{algorithmic}
-		\REQUIRE{El grafo original $G$ y el porcentaje de anonimización $p$ que se desea aplicar.}
-		\ENSURE{El grafo $G$ anonimizado.}
-		\STATE $num = round(G.num\_edges() * p)$
-		\STATE $i = 0$
-		\WHILE {$i < num$}
-		\STATE {$e_{1} = G.random\_edge()$}
-		\STATE $e_{2} = G.random\_edge()$
-		\STATE $new\_e_{1} = (e_{1}.origen, e_{2}.origen)$
-		\STATE $new\_e_{2} = (e_{1}.destino, e_{2}.destino)$
-		\IF {$!G.exist(new\_e_{1})$ \AND $!G.exist(new\_e_{2})$}
-		\STATE $G.add\_edge(new\_e_{1})$
-		\STATE $G.add\_edge(new\_e_{2})$
-		\STATE $G.delete\_edge(e_{1})$
-		\STATE $G.delete\_edge(e_{2})$
-		\STATE $i=i+1$
-		\ENDIF
-		\ENDWHILE
-		\RETURN $G$
-	\end{algorithmic}
-\end{algorithm}
-
-Un ejemplo de tabla se puede ver en la Tabla \ref{table:ejemplo_vertex_refi_query}
-
-\begin{table}
-	\centering{}
-	\begin{tabular}{ l || c | c | l }
-		\hline
-		Node ID & $\mathcal{H}_{0}$ & $\mathcal{H}_{1}$ & $\mathcal{H}_{2}$ \\
-		\hline
-		\hline
-		Alice & $\epsilon$ & 1 & \{4\}  \\
-		\hline
-		Bob & $\epsilon$ & 4 & \{1, 1, 4, 4\}  \\
-		\hline
-		Carol & $\epsilon$ & 1 & \{4\}  \\
-		\hline
-		Dave & $\epsilon$ & 4 & \{2, 4, 4, 4\}  \\
-		\hline
-		Ed & $\epsilon$ & 4 & \{2, 4, 4, 4\}  \\
-		\hline
-		Fred & $\epsilon$ & 2 & \{4, 4\}  \\
-		\hline
-		Greg & $\epsilon$ & 4 & \{2, 2, 4, 4\}  \\
-		\hline
-		Harry & $\epsilon$ & 2 & \{4, 4\}  \\
-		\hline
-	\end{tabular}
-	\caption{\textit{Vertex refinement queries}.}
-	\label{table:ejemplo_vertex_refi_query}
-\end{table}
