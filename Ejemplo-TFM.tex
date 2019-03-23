@@ -37,6 +37,7 @@
 \setlength{\oddsidemargin}{0cm}
 \setlength{\evensidemargin}{0cm}
 \setlength{\headheight}{1cm}
+\setlength{\parskip}{0.5cm}
 
 % indica que las 'sub-sub-sections' sean numeradas y aparezcan en el indice
 \setcounter{secnumdepth}{3}
@@ -45,7 +46,7 @@
 % settings for code
 \renewcommand{\algorithmicrequire}{\textbf{Entrada: }}
 \renewcommand{\algorithmicensure}{\textbf{Salida: }}
-\newcommand{\sectionbreak}{\clearpage}
+%\newcommand{\sectionbreak}{\clearpage}
 
 %%%%%%%%%%%%
 % DOCUMENT %
@@ -97,10 +98,12 @@
 
 % capitulos del documento
 \input{1_introduccion.tex}
+\newpage
+\input{2_Estado_del_Arte.tex}
 
 % bibliografia
 \addcontentsline{toc}{chapter}{Bibliografía}
-\bibliographystyle{plain}
+\bibliographystyle{unsrt}
 \bibliography{referencias}
 
 \end{document}

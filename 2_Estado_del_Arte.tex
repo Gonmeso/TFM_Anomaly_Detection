@@ -1,0 +1,26 @@
+\chapter{Estado del Arte}
+\label{chapter:Estado del Arte}
+
+Una de las aplicaciones más comunes dentro de la detección de anomalías es para la detección de intrusos (\textit{Intrusion Detection}) y la creación de sistemas de detección de intrusos (\textit{Intrusion Detection System, IDS}). Se trata de sistemas cuyo objetivo es la monitorización de los sistemas y redes informáticas, con el fin de alertar en caso de que puedan existir brechas de seguridad\cite{intrusionSystems}. 
+
+Con la ingente cantidad de redes y sistemas que se pueden encontrar a día de hoy es necesario incluir uno de estos sistemas, con el fin de mantener la integridad y disponibilidad de los mismos. Dentro de los IDS, se pueden identificar dos grandes implementaciones de estos sistemas, en los sistemas de detección de intrusos en Host (\textit{Host-Based Intrusion Detection Systems, HIDS}) y los sitemas de detección de intrusos en red (\textit{Network Intrusion Detection Systems, NIDS}).
+
+\begin{itemize}
+    \item \textbf{HIDS:} Estos sistemas se caracterizan por implementarse en el Host utilizando información del propio sistema operativo para detectar actos maliciosos \cite{HIDS}. Esta información tiene distintos niveles de información, pero por lo general tienden a ser de bajo nivel sobre operaciones que se pueden estar realizando dentro del sistema. Esta información se consulta dentro de logs, por lo que el análisis de la información es más lento.
+   \item \textbf{NIDS:} Para el segundo caso la monitorización se realiza a sistema de red, es decir, de comunicaciones entre distintos nodos y la monitorización de los paquetes que viajan entre ellos \cite{intrusionSystems}. Esta información puede ser consumida en tiempo real, por lo que la reacción ante algún evento es más rápida que en los HIDS que necesitan revisar las acciones.
+\end{itemize}
+
+%%% SECTION
+\section{Métodos tradicionales de detección de anomalías}
+En la sección actual se describen algunos de los métodos tradicionales utilizados en IDS, tanto para HIDS como para NIDS.
+
+\begin{itemize}
+    \item Network Security Monitor (NSM):  se trata de uno de los primeros sistemas que permitió auditar el tráfico que circulaba dentro de la red \cite{surveyIDS}. El sistema escucha pasivamente dentro de la red y detecta si existe una conducta sospechosa al desviarse de patrones de conducta. La mayor parte de la monitorización se basa en protocolos estándar como \textit{telnet, ftp, TCP/IP, etc.} por lo que le permitía utilizar una gran cantidad de datos heterogéneos.
+    \item State transition analysis (USTAT): el sistema parte de que el host en un momento se encuentra en un estado seguro y que según las acciones que se realizan sobre el mismo el host cambia de estado, hasta que llega a un estado en el que compromete la seguridad \cite{surveyIDS}. Este sistema analiza los estados por los que ha pasado la máquina desde el estado seguro al comprometido. 
+    \item GrIDS: se trata de un IDS que utiliza un sistema de construcción de grafos basados en la red, donde cada nodo representa a un host y las aristas las conexiones entre los mismos. La representación gráfica de la actividad de la red permite ayudar al espectador en identificar que está sucediendo \cite{surveyIDS}.
+    \item Haystack: en este caso el IDS se ayuda de métodos estdísticos para la deteción de anomalias, definiendo estrategias para usuarios y grupos, además de definir variables del modelo como variables gausianas independientes \cite{garcia2009anomaly}. Para la detección se incluyen una serie de intervalos en los valores que en el momento que salen del rango normal, se calcula la distribución de probabilidades y si el \textit{score} o puntuación es demasiado grande se genera una alerta.
+\end{itemize}
+
+Los métodos/sistemas listados se desarrollaron durante los años noventa, la tecnología ha evolucionado desde entonces y los sistemas se han vuelto más complejos y más propensos a los ciberataques. Por ello, se han desarrollado nuesvas técnicas que se apoyan en el uso de técnicas de minería de datos (\textit{Data Mining}) y las técnicas que se describiran a continuación de \textit{Machine Learning}.
+
+\section{Machine Learning y la detección anomalías}
