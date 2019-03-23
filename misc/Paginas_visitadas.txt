@@ -1,2 +1,36 @@
 CPU poca, pseguridad
 https://internetofthingsagenda.techtarget.com/definition/IoT-security-Internet-of-Things-security
+
+Deep learningYann LeCun1,2, Yoshua Bengio3 & Geoffrey Hinton
+https://creativecoding.soe.ucsc.edu/courses/cs523/slides/week3/DeepLearning_LeCun.pdf
+
+An overview of anomaly detection techniques: Existingsolutions and latest technological trends
+https://cs.brown.edu/courses/csci2270/papers/anomoly-survey.pdf
+
+IDS survey
+http://ranger.uta.edu/~dliu/courses/cse6392-ids-spring2007/papers/ids_research_survey.pdf
+
+IDS
+https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-31.pdf
+
+DEEPLEARNING  FORANOMALYDETECTION: A SURVEY
+https://arxiv.org/pdf/1901.03407.pdf
+
+Artificial  IntelligenceA  Modern  Approach
+https://www.cin.ufpe.br/~tfl2/artificial-intelligence-modern-approach.9780131038059.25368.pdf
+
+Letmesee
+http://openaccess.uoc.edu/webapps/o2/bitstream/10609/88705/10/jbengoecheaiTFM0119memoria.pdf
+
+SomeStudiesinMachineLearningUsingtheGameofCheckers
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.368.2254&rep=rep1&type=pdf
+
+Host-based intrusion detection using dynamic and staticbehavioral models
+https://www.researchgate.net/profile/Yuxin_Ding/publication/265294739_yeungpr2003/links/5407f3ba0cf2bba34c248693/yeungpr2003.pdf
+
+Neural Networks
+http://dai.fmph.uniba.sk/courses/NN/haykin.neural-networks.3ed.2009.pdf
+
+Host-Based Intrusion Detection
+http://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.60.6585&rep=rep1&type=pdf
+
