@@ -58,6 +58,8 @@ Dentro del \textit{Machine Learning}, los algoritmos pueden dividirse según com
 
 El aprendizaje supervisado se caracteriza por utilizar un conjunto de variables de entrada y encontrar la función que más se aproxime a los valores de salida \cite{Liu2012}. Actualmente es una de las metodologías más utilizadas en \textit{Machine Learning} y es una de las más avanzadas en el campo, sin embargo, la necesidad de los valores de salida (variable dependiente o \textit{target}) requiere que el conjunto de datos se encuentre etiquetado, es decir, para las observaciones de las variables de entrada debe existir la variable de salida para poder general el modelo. En muchos casos este etiquetado se debe de realizar manualmente, por lo que es un proceso que requiere mucho tiempo.
 
+Por otro lado, cabe mencionar que el uso de métodos de aprendizaje supervisado tienen una mayor efectividad que el semi y no supervisado, sin embargo, la necesidad de tener las etiquetas y el coste que ello supone para grandes cantidades de datos, como es en el caso de la detección de anomalías, provocan que se busquen otras soluciones con aprendizajes semi y no supervisado. Además, suele suceder que en la detección de anomalías, éstas sean la menor parte de todos los datos, en otras palabras, la mayor parte de los datos son normales y solo una pequeña porción se trata de anomalías como tal, provocando que el conjunto de datos esté poco compensado.
+
 Uno de los modelos más sencillos de aprendizaje supervisado es la regresión lineal (simple), ésta permite ajustar a una serie de puntos conocidos , \textit{x}, y su respuesta \textit{y} \cite{james2013introduction}, generando una función que permite predecir los valores de \textit{y} con valores no conocidos de \textit{x}:
 
 \begin{equation}
@@ -82,3 +84,77 @@ b = y – a \bar{x}
 \end{figure}
 
 Como se puede observar en la imagen \ref{fig:reglin}, se ha generado una recta capaz de ajustarse a los puntos y predecir el valor para nuevos puntos. Para generar la función de la recta se ha necesita utilizar la variable dependiente \textit{y} en el entrenamiento para poder generar la función que aproximará los nuevos puntos. 
+
+Durante los siguientes apartados se van a mostrar los distintos modelos utilizados en aprendizaje supervisado para la detección de anomalías, como las redes neuronales artificiales (\textit{Artificial Neural Networks, ANN}, \textit{Gradient Boosting Machines} y \textit{Support Vector Machines}
+
+\subsubsection{Feedforwark Neural Network}
+
+Tal y como se ha comentado anteriormente, las redes neuronales intentan imitar el concepto de la conexión de neuronas del cerebro humano, éstas están formadas por una capa de entrada de datos (\textit{Input}), una capa de salida (\textit{Input}) y un conjunto de capas intermedias, también llamadas capas ocultas (\textit{Hidden}) \cite{haykin1994neural}. En las capas intermedias se encuentran las neuronas conectadas entre sí y pueden estar formadas desde una sola capa, hasta \textit{n} capas, sin embargo, cuanto mayor sea el número de capas, mayor coste de computación asociado. En la siguiente imagen \ref{fig:ANN} podemos ver como sería una arquitectura de una red neuronal:
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=8cm]{figs/Colored_neural_network.png}
+	\caption{Red Neuronal Artificial}
+	\label{fig:ANN}
+\end{figure}
+
+Dentro de las redes neuronales existe un caso base conocido como perceptron, un clasificador binario formado por la capa de entrada, una capa oculta de una sola neurona y una salida \cite{rosenblatt1958perceptron}. El perceptrón ayudará a incluir el concepto de los pesos (\textit{weights}) y el \textit{bias}. 
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=8cm]{figs/Single_layer_perceptron.png}
+	\caption{Arquitectura de un Perceptron}
+	\label{fig:perceptron}
+\end{figure}
+
+Los valores de entrada \(X\) son multiplicados por una serie de pesos \(W\), en una primera instancia se inician aleatoriamente, y se realiza la suma de esta multiplicación, tras la cual se pasará a una función de activación. La función de activación define el valor de salida de la neurona y que se utilizará como valor de entrada para la siguiente neurona o como es en este caso como el valor de salida final. Un ejemplo de una función de activación es la función escalón, donde los valores menores de cero son iguales a cero y los mayores de cero son igual a uno. El \textit{bias} se trata de un pequeño valor que modifica el output sin interactura con las neuronas. De este modo la clasificación de 0 o 1 en un perceptron sería así:
+
+\begin{equation}
+    f(x) = g(\sum XW + b)
+\end{equation}
+
+Donde \(g(x)\) es la función de activación, X el vector de datos de entrada, W el vector de pesos y b el vector de bias.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=8cm]{figs/stepfunction.png}
+	\caption{Función de activación: Función Escalón}
+	\label{fig:stepfunction}
+\end{figure}
+
+Aumentando la complejidad de la arquitectura, es decir, el número de neuronas, el numero de capas y distintas funciones de activación, se consiguen modelos más complejos pero mantienen el enfoque que se realiza en el perceptron.
+
+Para optimizar la salida, se utilizan varias técnicas de optimización que permiten actualizar los pesos \(W\) y disminuir el error \(E = f(x) - y\), una de las más utilizadas es el \textit{backpropagation}, basado en el descenso del gradiente cuyo objetivo es obtener el gradiente de la función (vector de mayor pendiente) pero utilizar el valor opuesto del mismo multiplicado por un coeficiente de aprendizaje (\textit{learning rate}), una anlogía muy utilizada es imaginar como encontrar el punto más bajo del valle, para ello lo mejor es fijarse en que lugar del punto en el que nos encontremos tiene más pendiente negativa y seguir ese camino. El backpropagation utiliza esté método, pero en lugar de calcular el gradiente sobre la función total (gran coste) se realiza el cálculo de los gradientes locales, empezando desde el punto final de la función.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8cm]{figs/backprop.png}
+    \caption{Backpropagation}
+    \label{fig:backprop}
+\end{figure}
+
+La fórmula de la actualización de los pesos en una ANN sería similar a la siguiente:
+\begin{equation}
+    W_i+1 = W_i - \gamma \frac{1}{n} \sum \nabla L(x,w)
+\end{equation}
+
+Donde \(\gamma\) es el \textit{learning rate} y \(L(x)\) es la función de pérdida.
+
+La última capa, la capa de \textit{outputs}, define el número de neuronas de salida, que puede ser igual al número de clases etiquetadas o una sola neurona en el caso de que existan solo dos clases, clasificación binaria. El valor de las salidas irá definido por la función de activación de la última capa de la capa oculta.
+
+\subsubsection{Gradient Boosting Machines}
+
+Las \textit{Gradient Boosting Machines} son uno de los métodos más utilizados actualmente, dada la gran precisión que aportan a la resolución de los problemas. Estos modelos se basan en realizar el ensamblado de modelos débiles, normalmente árboles de decisión, para generar un predictor "fuerte" de una manera iterativa. 
+
+\subsubsection{Support Vector Machines}
+
+\subsection{Aprendizaje No Supervisado}
+\subsubsection{Long Short Term Memory Networks}
+\subsubsection{Autoencoders}
+\subsubsection{Generative Adversarial Networks}
+\subsubsection{Recurrent Neural Networks}
+
+\subsection{Aprendizaje Semi-Supervisado}
+\subsubsection{Autoencoders}
+\subsubsection{Convolutional Neural Networks}
+\subsubsection{Generative Adversarial Networks}
