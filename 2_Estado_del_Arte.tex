@@ -50,3 +50,35 @@ Como se ha comentado con anterioridad, el \textit{Machine Learning} es una rama 
 El \textit{Deep Learning} se diferencia del \textit{Machine Learning} convencional, en que están formados por modelos con distintas ramas de procesamiento que son capaces de extraer las representaciones de los datos con varios niveles de abstracción \cite{lecun2015deep}. Mucha de la teoría relacionada se puede encontrar en los años 50 y 60, sin embargo, las aplicaciones y la capacidad de cómputo eran limitadas en la época, hasta ahora donde la capacidad de computación ha crecido a gran escala y en conjunto con las nuevas técnicas propuestas, una mayor cantidad de datos y la aplicación de transformaciones no lineales hacen que esta vertiente viva su época dorada.
 
 Una de las implementaciones más representativas del \textit{Deep Learning} se trata de las redes neuronales, las cuales se encuentran basadas en el funcionamiento del cerebro humano, utilizando el concepto de neuronas que pueden realizar cálculos, la conexión entre las mismas, la función de realizar una tarea específica, etc. Añadir, que se encuentra basado y que el cerebro humano es un sistema mucho más complejo que las redes neuronales y tiene muchos más comportamientos \cite{haykin1994neural}.
+
+
+Dentro del \textit{Machine Learning}, los algoritmos pueden dividirse según como se realice el entrenamiento del modelo, afectando también a la evaluación y las aplicaciones del mismo. Estas categorias son: \textit{Aprendizaje Supervisado (Supervised Learning), Aprendizaje No Supervidado (Unsupervised Learning) y Aprendizaje Semi-Supervisado (Semi-Supervised Learning)}
+
+\subsection{Aprendizaje Supervisado}
+
+El aprendizaje supervisado se caracteriza por utilizar un conjunto de variables de entrada y encontrar la función que más se aproxime a los valores de salida \cite{Liu2012}. Actualmente es una de las metodologías más utilizadas en \textit{Machine Learning} y es una de las más avanzadas en el campo, sin embargo, la necesidad de los valores de salida (variable dependiente o \textit{target}) requiere que el conjunto de datos se encuentre etiquetado, es decir, para las observaciones de las variables de entrada debe existir la variable de salida para poder general el modelo. En muchos casos este etiquetado se debe de realizar manualmente, por lo que es un proceso que requiere mucho tiempo.
+
+Uno de los modelos más sencillos de aprendizaje supervisado es la regresión lineal (simple), ésta permite ajustar a una serie de puntos conocidos , \textit{x}, y su respuesta \textit{y} \cite{james2013introduction}, generando una función que permite predecir los valores de \textit{y} con valores no conocidos de \textit{x}:
+
+\begin{equation}
+y = ax + b 
+\end{equation}
+
+En este caso se predicen los nuevos valores utilizando la función ajustada, existen distintos métodos para encontrar la recta que ajusta los puntos, siendo uno de los más utilizados el ajuste por mínimos cuadrados:
+
+\begin{equation}
+a = \frac{\sum(x_i – \bar{x}) (y_i – \bar{y})} {\sum(x_i – \bar{x})^2}
+\end{equation}
+
+\begin{equation}
+b = y – a \bar{x}
+\end{equation}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=8cm]{figs/Linear_regression.png}
+	\caption{Regresión Lineal}
+	\label{fig:reglin}
+\end{figure}
+
+Como se puede observar en la imagen \ref{fig:reglin}, se ha generado una recta capaz de ajustarse a los puntos y predecir el valor para nuevos puntos. Para generar la función de la recta se ha necesita utilizar la variable dependiente \textit{y} en el entrenamiento para poder generar la función que aproximará los nuevos puntos. 
