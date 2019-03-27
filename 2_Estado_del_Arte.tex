@@ -69,11 +69,11 @@ y = ax + b
 En este caso se predicen los nuevos valores utilizando la función ajustada, existen distintos métodos para encontrar la recta que ajusta los puntos, siendo uno de los más utilizados el ajuste por mínimos cuadrados:
 
 \begin{equation}
-a = \frac{\sum(x_i – \bar{x}) (y_i – \bar{y})} {\sum(x_i – \bar{x})^2}
+    a = \frac{\sum(x_i - \bar{x}) (y_i - \bar{y})} {\sum(x_i - \bar{x})^2}
 \end{equation}
 
 \begin{equation}
-b = y – a \bar{x}
+    b = y - a \bar{x}
 \end{equation}
 
 \begin{figure}[H]
@@ -124,7 +124,7 @@ Donde \(g(x)\) es la función de activación, X el vector de datos de entrada, W
 
 Aumentando la complejidad de la arquitectura, es decir, el número de neuronas, el numero de capas y distintas funciones de activación, se consiguen modelos más complejos pero mantienen el enfoque que se realiza en el perceptron.
 
-Para optimizar la salida, se utilizan varias técnicas de optimización que permiten actualizar los pesos \(W\) y disminuir el error \(E = f(x) - y\), una de las más utilizadas es el \textit{backpropagation}, basado en el descenso del gradiente cuyo objetivo es obtener el gradiente de la función (vector de mayor pendiente) pero utilizar el valor opuesto del mismo multiplicado por un coeficiente de aprendizaje (\textit{learning rate}), una anlogía muy utilizada es imaginar como encontrar el punto más bajo del valle, para ello lo mejor es fijarse en que lugar del punto en el que nos encontremos tiene más pendiente negativa y seguir ese camino. El backpropagation utiliza esté método, pero en lugar de calcular el gradiente sobre la función total (gran coste) se realiza el cálculo de los gradientes locales, empezando desde el punto final de la función.
+Para optimizar la salida, se utilizan varias técnicas de optimización que permiten actualizar los pesos \(W\) y disminuir el error \(E = f(x) - y\), una de las más utilizadas es el \textit{backpropagation}, basado en el descenso del gradiente cuyo objetivo es obtener el gradiente de la función (vector de mayor pendiente) pero utilizar el valor opuesto del mismo multiplicado por un coeficiente de aprendizaje (\textit{learning rate}), una analogía muy utilizada es imaginar como encontrar el punto más bajo del valle, para ello lo mejor es fijarse en que lugar del punto en el que nos encontremos tiene más pendiente negativa y seguir ese camino. El backpropagation utiliza esté método, pero en lugar de calcular el gradiente sobre la función total (gran coste) se realiza el cálculo de los gradientes locales, empezando desde el punto final de la función.
 
 \begin{figure}[H]
     \centering
@@ -135,7 +135,7 @@ Para optimizar la salida, se utilizan varias técnicas de optimización que perm
 
 La fórmula de la actualización de los pesos en una ANN sería similar a la siguiente:
 \begin{equation}
-    W_i+1 = W_i - \gamma \frac{1}{n} \sum \nabla L(x,w)
+    W_{i+1} = W_i - \gamma d W
 \end{equation}
 
 Donde \(\gamma\) es el \textit{learning rate} y \(L(x)\) es la función de pérdida.
@@ -146,9 +146,115 @@ La última capa, la capa de \textit{outputs}, define el número de neuronas de s
 
 Las \textit{Gradient Boosting Machines} son uno de los métodos más utilizados actualmente, dada la gran precisión que aportan a la resolución de los problemas. Estos modelos se basan en realizar el ensamblado de modelos débiles, normalmente árboles de decisión, para generar un predictor "fuerte" de una manera iterativa. 
 
+El término \textit{Boosting} se refiere al método utilizado para mejorar el aprendizaje de un modelo mediante el ensamblado de modelos débiles, esto quiere decir que son modelos con una capacidad de predicción mejor que la pura aleatoriedad \cite{freund1996experiments}. 
+
+Concretamente el \textit{Gradient Boosting} trata de generar un primer árbol para realizar las predicciones, es decir, crea un función \(F(x)\) para aproximar \(y\), posteriormente se utiliza la función de coste definida (puede ser un error cuadrático medio para una regresión, por ejemplo) para ver como de bien ha realizado la predicción. Los residuales obtenidos se utilizan para crear un nuevo modelo que utilice estos residuales con el fin de volver a minimizar el error y finalmente se genera un nuevo modelo que utilice ambos. De esta forma en cada iteración su puede añadir \textit{n} cantidad de nuevos modelos que ayuden a mejorar las predicciones mediante la corrección de los errores de los modelos previos \cite{webgbm}.
+
+Se crea el primer modelo
+\begin{equation}
+    F_1(x) = y
+\end{equation}
+
+Se crea un segundo modelo con los residuales
+\begin{equation}
+     h_1(x) = y - F_1(x)
+     \label{eq:residuals}
+\end{equation}
+
+Se genera un nuevo modelo con los anteriores
+\begin{equation}
+     F_2(x) = F_1(x) + h_1(x)
+\end{equation}
+
+Dentro del ajuste a los residuales es donde entra la parte del gradiente, tal y como hemos explicado anteriormente se utiliza el método del descenso del gradiente (\textit{Gradient Descent}) para la optimización de la función de pérdida. Para cada paso que se realiza, en vez de calcular los residuales como en la fórmula \ref{eq:residuals} se ajustan calculando el gradiente de la función de pérdida y ajustando un nuevo modelo, \(h\), con los nuevos residuales y en la generación del nuevo modelo incluirle \textit{gamma} (\(\gamma\)), similar al concepto explicado de \textit{learning rate}:
+
+\begin{equation}
+    r = - [ \frac{\partial L(F(x_i),y)}{\partial F(x_i)} ]
+\end{equation}
+
+\begin{equation}
+        F_2(x) = F_1(x) + \gamma h_1(x)
+\end{equation}
+
+En la práctica el uso de estos modelos se ha comprobado que es realmente eficaz para la resolución de problemas. Dentro de estos algoritmos se pueden destacar dos en concreto, cuyas implementaciones se han utilizado en varias soluciones dentro de las competiciones realizadas por Kaggle.
+
+\textbf{XGBoost}
+
+Diminutivo de \textit{eXtreme Gradient Boosting} se trata de una nueva implementación de GBM realizada por Chen, Tianqi, et al \cite{chen2016xgboost}, que demuestra una mayor escalabilidad y velocidad que los métodos tradicionales, utilizando una menor cantidad de recursos de los sistemas.  
+
+\textbf{LightGBM}
+
+Desarrollado por Microsoft \cite{ke2017lightgbm} se propone mejorar los problemas encontrados en algoritmos como \textit{XGBoost} cuando existe una alta cantidad de variables, esto es ocasionado por la necesidad de evaluar el punto óptimo para la división de los árboles de decisión. Propone su propia forma de efectuar la ganancia de información (por división) y demuestra una mejora en el tiempo de cómputo sobre los modelos convencionales.
+
+Algunas de las competiciones donde se han utilizado los algoritmos (también ensamblándolos) son las siguientes:
+
+\begin{itemize}
+    \setlength\itemsep{0.5cm}
+    \item Home Credit Default Risk: Can you predict how capable each applicant is of repaying a loan? \cite{kagglehome}.
+    \item Corporación Favorita Grocery Sales Forecasting: Can you accurately predict sales for a large grocery chain? \cite{kagglefav}.
+    \item Google Analytics Customer Revenue Prediction: Predict how much GStore customers will spend \cite{kagglegoogle}.
+\end{itemize}
+
 \subsubsection{Support Vector Machines}
 
+Se trata de otro algoritmo enfocado a la clasificación mediante la separación de los puntos por un hiperplano \cite{james2013introduction}. Por ejemplo, para un set de datos etiquetados con dos categorías (clasificación binaria) se busca encontrar la línea (hiperplano) que mejor separe ambos puntos, como puede observarse en la imagen \ref{fig:svm} existen distintos hiperplanos (\(H_1 , H_2 , H_3\)) que separan las distintas clases, como puedo observarse tanto \(H_1\) como  \(H_2\) son capaces de separar las dos clases por completo, mientras que \(H_3\) fallaría en la tarea de clasificación .
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8cm]{figs/Svm_separating_hyperplanes.png}
+    \caption{Hiperplanos SVM}
+    \label{fig:svm}
+\end{figure}
+
+Se puede definir el hiperplano como la "línea" que puede dividir los datos entre las dos clases, es decir, se pretende separar el espacio en dos mitades. Esta "línea" para un problema de \(p\) dimensiones sería de \(p-1\) dimensiones, en otras palabras, para un un problema de dos dimensiones sería una línea, para uno de tres sería un plano y así sucesivamente hasta \(n\) dimensiones. Esta separación indica que según donde se encuentren los puntos con respecto al hiperplano se clasificarán como una clase u otra.
+
+\begin{equation}
+    \beta_0 + X_1\beta_1 + X_2\beta_2 +  ... +  X_n\beta_n = 0 
+\end{equation}
+
+Como se ha mencionado en la imagen \ref{fig:svm}, existen varios hiperplanos, sin embargo, se debe de buscar el hiperplano óptimo de los posibles, siendo este el que se encuentra más alejado de los puntos de entrenamiento, es decir, es el hiperplano con mayor margen entre los puntos y el hiperplano. Sin embargo, si solo nos basamos en encontrar el mejor hiperplano según los márgenes se puede dar el caso de que un nuevo punto afecte en gran medida al hiperplano, por maximizar los márgenes, por ello se utiliza un parámetro \textit{C} que permite "ablandar" el clasificador y permitir que ciertos puntos puedan encontrarse entre el hiperplano y el margen, la mala clasificación de unos poco puntos permitidos evita sobreentrenar el modelo y permitir generalizar mejor.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=11cm]{figs/svm_c.png}
+    \caption{Hiperplanos para distintos valores de \textit{C}}
+    \label{fig:svm_c}
+\end{figure}
+
+Por ahora, se ha hablado de separar los datos linealmente y en dos clases, sin embargo, ese no es siempre el caso, podemos tener más de dos clases o por ejemplo tenemos datos que no sean separables por una "línea", pensemos en dos conjuntos de puntos que forman una serie de circunferencias concéntricas (\ref{fig:svm_radial}), para este caso una línea nunca logrará separar bien los puntos. Para está última, la \textit{SVM} puede utilizar los \textit{kernels}, se trata de funciones que permiten cambiar la dimensionalidad del espacio para ayudar a la separación de las clases.
+
+\textit{Kernel} lineal
+\begin{equation}
+    K(x_i, x_{i'}) = \sum_{j=1}^{p} x_ij x_{i'j}
+\end{equation}
+
+\textit{Kernel} polinomial
+\begin{equation}
+    K(x_i, x_{i'}) = (1 + \sum_{j=1}^{p} x_ij x_{i'j})^d
+\end{equation}
+
+\textit{Kernel} radial
+\begin{equation}
+    K(x_i, x_{i'}) = exp(-\gamma \sum_{j=1}^{p} (x_ij x_{i'j})^2)
+\end{equation}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=8cm]{figs/svm_radial.png}
+    \caption{Efecto de aplicación de \textit{Kernel} radial en SVM}
+    \label{fig:svm_radial}
+\end{figure}
+
+Para el caso de tener más de dos clases se pueden aplicar dos enfoques distintos:
+
+\begin{itemize}
+    \item Clasificación uno contra uno: para este caso se crean una SVM por cada par de clases y realiza la clasificación para ellos, luego el resultado es elegido observando cuantas veces el punto cae en una categoría para las distintas SVM clasificándolo a la clase más frecuente.
+    \item Clasificación uno contra todos: en este caso se realiza una SVM por clase, de modo que se compare la clase escogida con el resto y valorando en cual de los modelos generados es más apta la clasificación del punto
+\end{itemize}
+
 \subsection{Aprendizaje No Supervisado}
+\subsubsection{Análisis de Componentes Principales y Clusterización}
 \subsubsection{Long Short Term Memory Networks}
 \subsubsection{Autoencoders}
 \subsubsection{Generative Adversarial Networks}
