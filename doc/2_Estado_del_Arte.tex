@@ -87,7 +87,7 @@ Como se puede observar en la imagen \ref{fig:reglin}, se ha generado una recta c
 
 Durante los siguientes apartados se van a mostrar los distintos modelos utilizados en aprendizaje supervisado para la detección de anomalías, como las redes neuronales artificiales (\textit{Artificial Neural Networks, ANN}, \textit{Gradient Boosting Machines} y \textit{Support Vector Machines}
 
-\subsubsection{Feedforwark Neural Network}
+\subsubsection{Feedforward Neural Network}
 
 Tal y como se ha comentado anteriormente, las redes neuronales intentan imitar el concepto de la conexión de neuronas del cerebro humano, éstas están formadas por una capa de entrada de datos (\textit{Input}), una capa de salida (\textit{Input}) y un conjunto de capas intermedias, también llamadas capas ocultas (\textit{Hidden}) \cite{haykin1994neural}. En las capas intermedias se encuentran las neuronas conectadas entre sí y pueden estar formadas desde una sola capa, hasta \textit{n} capas, sin embargo, cuanto mayor sea el número de capas, mayor coste de computación asociado. En la siguiente imagen \ref{fig:ANN} podemos ver como sería una arquitectura de una red neuronal:
 
@@ -250,15 +250,41 @@ Para el caso de tener más de dos clases se pueden aplicar dos enfoques distinto
 
 \begin{itemize}
     \item Clasificación uno contra uno: para este caso se crean una SVM por cada par de clases y realiza la clasificación para ellos, luego el resultado es elegido observando cuantas veces el punto cae en una categoría para las distintas SVM clasificándolo a la clase más frecuente.
-    \item Clasificación uno contra todos: en este caso se realiza una SVM por clase, de modo que se compare la clase escogida con el resto y valorando en cual de los modelos generados es más apta la clasificación del punto
+    \item Clasificación uno contra todos: en este caso se realiza una SVM por clase, de modo que se compare la clase escogida con el resto y valorando en cual de los modelos generados es más apta la clasificación del punto.
 \end{itemize}
 
 \subsection{Aprendizaje No Supervisado}
-\subsubsection{Análisis de Componentes Principales y Clusterización}
-\subsubsection{Long Short Term Memory Networks}
+
+Este nuevo tipo de aprendizaje se distingue porque no necesita ese conjunto de etiquetas que se utiliza por observación, es decir, en este caso no se tiene el valor de la clase o el valor numérico correspondiente a cierto conjunto de datos. Para este caso no se enfoca a la predicción de los valores, debido a que no tenemos esa variable \textit{target} para la que queremos desarrollar la función que la aproxime lo máximo posible, en este caso, el objetivo principal es intentar descubrir nuevos patrones o información oculta dentro de los datos \cite{james2013introduction}.
+
+Muchas veces el uso del aprendizaje no supervisado no se encuentra con el simple objetivo de predecir, si no que puede ser parte de un proceso de análisis de los datos, de modo que permitan encontrar más información útil de los mismos, como por ejemplo, se puede realizar una segmentación de usuarios, de modo que posteriormente se pueda estudiar que causa esta segmentación de los mismos y mejorar los servicios que se les puedan ofrecer.
+
+El uso del aprendizaje no supervisado esta creciendo cada vez más, dado que en la mayor parte de los casos los datos no vienen etiquetados, tal y como se ha comentado anteriormente el etiquetado de los mismos es un proceso costoso y además mientras que en el supervisado se puede "supervisar" si el resultado es correcto en la fase de entrenamiento, mientras que para el no supervisado, no se tiene esta capacidad de conocer cual es el valor real, dado que es imposible saber cual es la respuesta correcta.
+\subsubsection{Análisis de Componentes Principales}
+Se trata de uno de los algoritmos más conocidos cuya finalidad es explicar en una serie de "componentes", siendo la cantidad de éstos menor a la cantidad de variables de los datos iniciales, que permiten explicar la mayor parte de la varianza de los datos originales. Estos "componentes" se trata de un conjunto de nuevas variables que son capaces de explicar una gran parte de la varianza de un conjunto mayor, en otras palabras, permite obtener gran parte de la varianza explicada en un dimensionalidad menor.
+
+En las siguientes imágenes se ha utilizado un set de datos sintéticos de dos dimensiones, en el que se muestra como en la imagen de la izquierda \ref{Fig:PCA1} se encuentran nubes de datos que cambian en función de los ejes \textit{x} e \textit{y} y como la aplicación del análisis de componentes principales \ref{Fig:PCA2}, \textit{PCA} de ahora en adelante, genera nuevas variables (dos componentes principales) que tienden a explicar la varianza de las variables originales. En este caso se puede apreciar como la aplicación del algoritmo "mueve" las observaciones, haciendo que así sean más identificables en a lo largo de los ejes.
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=1\linewidth]{figs/PCA_previo.PNG}
+     \caption{Datos de dos variables sin PCA}
+     \label{Fig:PCA1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.95\linewidth]{figs/PCA_aplicado.PNG}
+     \caption{PCA aplicado a dos variables}
+     \label{Fig:PCA2}
+   \end{minipage}
+\end{figure}
+
+Este ejemplo se trata de un caso sencillo, por lo general esta técnica también se puede utilizar para visualizar los datos de una gran dimensionalidad en dos o tres variables, utilizando ese número de componentes principales, que se tratan de una combinación lineal de las variables anteriores \cite{james2013introduction}.
+
+\subsubsection{Agrupación}
 \subsubsection{Autoencoders}
 \subsubsection{Generative Adversarial Networks}
-\subsubsection{Recurrent Neural Networks}
 
 \subsection{Aprendizaje Semi-Supervisado}
 \subsubsection{Autoencoders}
