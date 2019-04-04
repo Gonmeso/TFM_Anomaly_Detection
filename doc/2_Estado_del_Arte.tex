@@ -282,6 +282,42 @@ En las siguientes imágenes se ha utilizado un set de datos sintéticos de dos d
 
 Este ejemplo se trata de un caso sencillo, por lo general esta técnica también se puede utilizar para visualizar los datos de una gran dimensionalidad en dos o tres variables, utilizando ese número de componentes principales, que se tratan de una combinación lineal de las variables anteriores \cite{james2013introduction}.
 
+Para realizar el cálculo del PCA, se puede realizar mediante el uso de álgebra lineal, más en concreto con una descomposición de autovalores y autovectores que siguen los siguientes pasos para una matriz \(X\) con \textit{p} variables y \textit{n} observaciones \cite{PCAscratch}:
+
+Se calcula la media de cada una de las columnas
+\begin{equation}
+    \overline{X} = \overline{X_1}, \overline{X_2}, ... \overline{X_p} 
+\end{equation}
+
+Se normaliza el valor de las columnas restando la media de cada columna a todos los valores de la matriz
+
+\begin{equation}
+    X_(norm) = X - \overline{X}
+\end{equation}
+
+Se genera la matriz de covarianza con la matriz normalizada, siendo E la media, por cada par de variables \cite{covWikipedia}
+
+\begin{equation}
+    Cov[X_i, X_j] = E[(X_i - E[X_i])(X_j - E[X_j])]
+\end{equation}
+
+De la matriz de covarianza se calculan los autovalores y autovectores
+\begin{equation}
+    \lambda, \nu <- X_(cov)
+\end{equation}
+
+Una vez obtenidos los autovectores y autovalores, se seleccionarán un cantidad \textit{m} que será la cantidad de componentes principales elegidos
+
+\begin{equation}
+    B =  [\lambda_1 ... \lambda_m, \nu_1 ...\nu_m ]
+\end{equation}
+
+Y con estos calculamos la proyección \textit{P} de la matriz original \textit{X} con \textit{m} componentes principales
+
+\begin{equation}
+    P = B^T . A
+\end{equation}
+
 \subsubsection{Agrupación}
 \subsubsection{Autoencoders}
 \subsubsection{Generative Adversarial Networks}
