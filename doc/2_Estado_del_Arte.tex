@@ -292,7 +292,7 @@ Se calcula la media de cada una de las columnas
 Se normaliza el valor de las columnas restando la media de cada columna a todos los valores de la matriz
 
 \begin{equation}
-    X_(norm) = X - \overline{X}
+    X_{norm} = X - \overline{X}
 \end{equation}
 
 Se genera la matriz de covarianza con la matriz normalizada, siendo E la media, por cada par de variables \cite{covWikipedia}
@@ -303,7 +303,7 @@ Se genera la matriz de covarianza con la matriz normalizada, siendo E la media, 
 
 De la matriz de covarianza se calculan los autovalores y autovectores
 \begin{equation}
-    \lambda, \nu <- X_(cov)
+    \lambda, \nu <- X_{cov}
 \end{equation}
 
 Una vez obtenidos los autovectores y autovalores, se seleccionarán un cantidad \textit{m} que será la cantidad de componentes principales elegidos
@@ -319,6 +319,30 @@ Y con estos calculamos la proyección \textit{P} de la matriz original \textit{X
 \end{equation}
 
 \subsubsection{Agrupación}
+
+Tal y como el propio nombre indica, actualmente se utilizan métodos de agrupación en el que podemos encontrar grupos o \textit{clusters}. Esta agrupación se realiza mediante la similitud entre observaciones, donde  la similitud puede ser la distancia euclídea entre las observaciones \cite{james2013introduction}, útil cuando todas las variables son numéricas. En la imagen \ref{fig:agrupEj} podemos ver un ejemplo donde datos (sin etiquetar, imagen de la izquierda) se analizan y se agrupan (imagen de la derecha).  En este caso la agrupación es clara, sin embargo, la agrupación se puede realizar con datos más abstractos y menos representables dada su alta dimensionalidad.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{figs/clustering_example.png}
+    \caption{Ejemplo de agrupamiento}
+    \label{fig:agrupEj}
+\end{figure}
+
+Como se ha comentado, la similitud entre observaciones ayuda a encontrar que grupos son más similares, por lo tanto dependiendo del problema se pueden utilizar distintas distancias como la euclídea o manhattan, siendo estas de las más utilizadas: 
+
+Distancia euclídea
+\begin{equation}
+    d(X_1, X_2) = \sqrt{(X_{11} - X_{21})^2 + (X_{12} - X_{22})^2 + ... +  (X_{1n} - X_{2n})^2}
+\end{equation}
+
+Distancia manhattan
+\begin{equation}
+    d(X_1, X_2) = \sum_{i=1}^{n}|X_{1i} - X_{2i}|
+\end{equation}
+
+Estas distancias se aplican a datos con variables numéricas por lo que no son adecuadas cuando existe variables discretas, sin embargo, se pueden realizar transformaciones en estas variables a numéricas para poder utilizarlas. En el caso donde la mayor parte de las variables sean categóricas esta transformación no daría bueno resultados, por lo que se pueden utilizar distancias específicas para variables discretas, como \textit{Goodall, Lin} o \textit{Smirnov} \cite{boriah2008similarity}.
+
 \subsubsection{Autoencoders}
 \subsubsection{Generative Adversarial Networks}
 
