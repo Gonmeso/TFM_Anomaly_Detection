@@ -343,6 +343,15 @@ Distancia manhattan
 
 Estas distancias se aplican a datos con variables numéricas por lo que no son adecuadas cuando existe variables discretas, sin embargo, se pueden realizar transformaciones en estas variables a numéricas para poder utilizarlas. En el caso donde la mayor parte de las variables sean categóricas esta transformación no daría bueno resultados, por lo que se pueden utilizar distancias específicas para variables discretas, como \textit{Goodall, Lin} o \textit{Smirnov} \cite{boriah2008similarity}.
 
+Dentro de los algoritmos de clusterización los más conocidos son los siguientes:
+
+\begin{itemize}
+    \item KMeans o K-medias: es un algoritmo de clusterización en el cual se indica a priori el número clústers \textit{K} que se quieren realizar \cite{james2013introduction}. Una vez definido se generan \textit{k} centroides aleatorios, se calculan las distancias de estos centroides al resto de puntos de modo que se asocia a cada punto el centroide que más cercano se encuentre (se puede decir que se le asigna una clase o grupo) y finalmente se actualiza el centroide utilizando los valores medios de todos sus puntos asociados. Se vuelven a calcular las distancias, asignar de nuevo los centroides y la actualización de éstos hasta que no se realizan grandes cambios, es decir, converge o hasta un número máximo de rondas.
+    \item DBSCAN: este algoritmo se basa en la generación de los grupos mediante la identificación de áreas de alta densidad (de puntos) frente a zonas de poca densidad \cite{ester1996density}. En este caso no se necesita indicar el número de clústers a  priori, pero si un número mínimo de observaciones como para poder considerar que se trata de un nuevo grupo. En este algoritmo no todas las observaciones se agrupan, si no cumplen la cantidad mínima esta observaciones se pueden considerar como \textit{outliers} o anomalías.
+    \item Algoritmos jerárquicos: en este tipo de algoritmos se define una medida de disimilitud (distancia euclídea, por ejemplo) entre los distintos puntos (considerados como un grupo cada uno), de modo que aquellos puntos con la menor disimilitud se agrupan en un nuevo clúster, generando un nuevo grupo de puntos. Con este grupo de puntos surge una nueva medida que permite identificar la disimilitud entre los mismos, \textit{linkage}. Por lo general existen distintos modos de \textit{linkage} siendo los más comunes: completo (se calcula la disimilitud entre todos los puntos de los grupos y se selecciona la mayor), \textit{single} (se selecciona la menor), media (se hace la media de todas las disimilitudes) y centroide (se calcula la disimilitud entre los centroides de los grupos)
+\end{itemize}
+
+Tal y como se ha comentado anteriormente, generalmente se suelen utilizar conjuntos de varias técnicas que permitan mejorar los resultados obtenidos utilizando una técnica sola, un ejemplo en la detección de anomalías es el uso de PCA y KMeans, arrojando buenos resultados en dispositivos IOT \cite{pcakmeans}. 
 \subsubsection{Autoencoders}
 \subsubsection{Generative Adversarial Networks}
 
