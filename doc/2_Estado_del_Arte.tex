@@ -352,7 +352,36 @@ Dentro de los algoritmos de clusterización los más conocidos son los siguiente
 \end{itemize}
 
 Tal y como se ha comentado anteriormente, generalmente se suelen utilizar conjuntos de varias técnicas que permitan mejorar los resultados obtenidos utilizando una técnica sola, un ejemplo en la detección de anomalías es el uso de PCA y KMeans, arrojando buenos resultados en dispositivos IOT \cite{pcakmeans}. 
+
 \subsubsection{Autoencoders}
+
+Los autoencoders son redes neuronales con una determinada estructura, de modo que no se necesite un set de datos etiquetados (variable dependiente o \textit{target}), el objetivo de esta red neuronal es reconstruir los datos de entrada en la capa de salida. Esto se realiza utilizando el mismo número de neuronas de entrada en la salida, de modo que utilizando las técnicas de las redes neuronales, como la optimización por descenso del gradiente y el \textit{backpropagation} se puedan general nuevas variables (\textit{features}) que reconstruyen los datos de entrada \cite{ng2011sparse}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{figs/autoencoder.png}
+    \caption{Arquitectura de un Autoencoder}
+    \label{fig:autoencoder}
+\end{figure}
+
+Como se puede observar en la imagen \ref{fig:autoencoder} las dimensiones de entrada son iguales en la salida, y las capas intermedias se pueden dividir en dos partes:
+
+\begin{itemize}
+    \item \textit{Encoder}: permite codificar la entrada a una dimensionalidad menor, de modo que se genera una representación de menor dimensionalidad de la entrada y se generan las nuevas \textit{features}. La capa intermedia se puede utilizar como representación de menor dimensionalidad, similar a la reducción de dimensionalidad del PCA, que puede utilizarse como variables para otro algoritmo.
+    \item \textit{Decoder}: decodificador utilizando la capa intermedia donde se pretende reconstruir los datos de entrada, utilizando las \textit{features} generadas por el \textit{Encoder} hasta llegar a la dimensionalidad de entrada.
+\end{itemize}
+
+Utilizando este método es posible, a partir de datos sin etiquetar, entrenar una red neuronal que permita reconstruir fielmente los datos de entrada, pero en el caso de las anomalías esta reconstrucción no seria del todo fiel (o similar a datos comunes), en otras palabras, el error de la reconstrucción sería mayor que el de una representación normal. De este modo se permite identificar picos en el error que muestren que la reconstrucción no es fiel y que la observación en cuestión se pueda tratar de una anomalía.
+
+En la imagen \ref{fig:autoencoderAnomaly} se puede observar un ejemplo del uso de autoencoders que permite clasificar una transacción fraudulenta (clase 1) de una no fraudulenta (clase 0). En este caso la reconstrucción de los datos no fraudulentos representan un error muy pequeño, en comparación a sus contrapartidas, y se puede observar como la mayor parte de estos se encuentran debajo del umbral definido. Aquellos datos anómalos no acaban de reconstruirse con total fidelidad aumentando el error definido (en este caso el error cuadrático medio). No todos son identificados correctamente, pero si permite aumentar la detección de los mismos, en algunos casos donde la cantidad de datos es muy grande y la cantidad de anomalías es muy pequeña este tipo de enfoques puede ayudar a disminuir la cantidad de trabajo necesario para confirmar el fraude, un ejemplo sería en el blanqueo de capitales donde la mayor parte de casos no constituyen blanqueo, reducir el número de casos a revisar puede ahorrar una gran cantidad de costes y tiempo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{figs/autoencoderAnomalyDetection.png}
+    \caption{Ejemplo de detección de anomalías con Autoencoders}
+    \label{fig:autoencoderAnomaly}
+\end{figure}
+
 \subsubsection{Generative Adversarial Networks}
 
 \subsection{Aprendizaje Semi-Supervisado}
