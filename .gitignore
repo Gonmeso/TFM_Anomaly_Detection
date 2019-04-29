@@ -1,1 +1,3 @@
-helpers/.ipynb_checkpoints/
+helpers/
+.ipynb_checkpoints/
+data/cmd*
