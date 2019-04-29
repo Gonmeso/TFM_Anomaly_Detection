@@ -30,9 +30,9 @@ with open('check_results.csv', 'w') as results:
                     logging.warning(f'Bad line found at {idx}')
 
         p_lines = [str(c) for c in problematic_lines]
-        p_lines = ','.join(p_lines)
+        p_lines = ';'.join(p_lines)
 
         logging.info(f'Writing results for {file_}')
-        results.write(';'.join([file_, p_lines]) + '\n')
+        results.write(','.join([file_, p_lines]) + '\n')
 
 logging.info('Check finished.')
