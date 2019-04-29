@@ -1,3 +1,6 @@
 helpers/
 .ipynb_checkpoints/
 data/cmd*
+data/pre*
+logs/
+.vscode/
