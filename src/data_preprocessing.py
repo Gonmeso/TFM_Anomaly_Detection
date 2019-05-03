@@ -18,11 +18,19 @@ files_list = [x for x in os.listdir(DATA_PATH) if 'cmd' in x]
 for file_ in files_list:
     try:
         data = pd.read_csv(filepath_or_buffer=(DATA_PATH + file_),
-                   sep='\$\$',
-                   engine='python',
-                   header=None,
-                   names=["Timestamp", "IP1", "Port1", "IP2", "Port2", "Entrypoint"],
-                   usecols=[0, 1, 2, 3, 4, 5])
+                           sep='\$\$',
+                           engine='python',
+                           header=None,
+                           names=[
+                               "Timestamp",
+                               "IP1",
+                               "Port1",
+                               "IP2",
+                               "Port2",
+                               "Entrypoint"
+                               ],
+                           usecols=[0, 1, 2, 3, 4, 5]
+                           )
 
         logging.info(f"File {file_} loaded correctly!")
 

@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 PRE_PATH = '../data/preprocessed/'
 LOGS_PATH = '../logs/'
-PLOTS_PATH= './plots/'
+PLOTS_PATH = './plots/'
 
 logging.basicConfig(format='%(levelname)s - %(asctime)s: %(message)s',
                     datefmt='%d/%m/%Y %H:%M:%S',
@@ -60,12 +60,18 @@ for file_ in files_list:
                         second='59'
                     )
                     if not df[init:end].empty:
-                        logging.info(f"Plotting graph for interval {hour}-{hour + 1} @ day {day}")
-                        df[init:end].plot(ax=ax[hour%6][hour//6], x='index', y='Timestamp')
+                        logging.info("Plotting graph for interval"
+                                     f"{hour}-{hour + 1} @ day {day}")
+                        df[init:end].plot(
+                            ax=ax[hour % 6][hour//6], x='index', y='Timestamp'
+                            )
                     else:
-                        logging.warning(f"No data for interval {hour}-{hour + 1} @ day {day}")
+                        logging.warning("No data for interval "
+                                        f"{hour}-{hour + 1} @ day {day}")
 
-                plt.savefig(PLOTS_PATH + file_ + '_' + str(month) + '_hourly_plots.png')
+                plt.savefig(
+                    PLOTS_PATH + file_ + '_' + str(month) + '_hourly_plots.png'
+                    )
                 logging.info(f"Graph for {file_} created")
     except Exception as e:
         logging.error(str(e))

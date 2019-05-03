@@ -4,3 +4,4 @@ data/cmd*
 data/pre*
 logs/
 .vscode/
+*nohup*
