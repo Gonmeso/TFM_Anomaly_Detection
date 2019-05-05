@@ -37,9 +37,10 @@ for file_ in files_list:
 
         for month in df.index.month.unique().values:
 
-            for day in df.index.day.unique():
+            fig, ax = plt.subplots(nrows=6, ncols=4, figsize=(24, 16))
+            plt.tight_layout()
 
-                fig, ax = plt.subplots(nrows=6, ncols=4, figsize=(12, 8))
+            for day in df.index.day.unique():
 
                 for hour in range(24):
                     init = str_template.format(
