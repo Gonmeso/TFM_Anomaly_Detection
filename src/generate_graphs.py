@@ -26,7 +26,9 @@ for file_ in files_list:
     try:
         logging.info('-'*20)
 
-        df = pd.read_csv((PRE_PATH + file_), sep=';', usecols=[0])
+        df = pd.read_csv((PRE_PATH + file_),
+                         sep='\t',
+                         usecols=[0])
         df['Timestamp'] = pd.to_datetime(df['Timestamp'])
         df = df['Timestamp'].value_counts().sort_index()
 
