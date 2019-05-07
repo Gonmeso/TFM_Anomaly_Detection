@@ -1,5 +1,6 @@
 import os
 import logging
+from helper.helpers import *
 import numpy as np
 import pandas as pd
 
@@ -38,6 +39,18 @@ for file_ in files_list:
 
         data['IP2_N1'], data['IP2_N2'], data['IP2_N3'], data['IP2_Host'] = data['IP2'].str.split('.').str
         logging.debug(f'IP2 features created for file {file_}')
+
+        data['Enabled'] = data['Entrypoint']\
+            .apply(lambda x: check_word(x, 'enable'))
+        logging.debug(f'Enabled feature created for file {file_}')
+
+        data['isSsh'] = data['Entrypoint']\
+            .apply(lambda x: check_word(x, 'sh'))
+        logging.debug(f'isSsh feature created for file {file_}')
+
+        # data['login'], data['commands'] = data['Entrypoint']\
+        #     .apply(lambda x: split_from_word(string_to_list(x), 'enable'))
+        # logging.debug(f'Actions features created for file {file_}')
 
         data.to_csv((DATA_PATH + file_),
                     sep="\t",
