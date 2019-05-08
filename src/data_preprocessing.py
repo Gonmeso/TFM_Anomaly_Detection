@@ -48,9 +48,13 @@ for file_ in files_list:
             .apply(lambda x: check_word(x, 'sh'))
         logging.debug(f'isSsh feature created for file {file_}')
 
-        # data['login'], data['commands'] = data['Entrypoint']\
-        #     .apply(lambda x: split_from_word(string_to_list(x), 'enable'))
-        # logging.debug(f'Actions features created for file {file_}')
+        data['login'] = data['Entrypoint']\
+            .apply(lambda x: split_from_word(string_to_list(x),
+                                             'enable', 'backward'))
+        data['commands'] = data['Entrypoint']\
+            .apply(lambda x: split_from_word(string_to_list(x),
+                                             'enable', 'forward'))
+        logging.debug(f'Actions features created for file {file_}')
 
         data.to_csv((DATA_PATH + file_),
                     sep="\t",

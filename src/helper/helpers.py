@@ -8,14 +8,16 @@ def check_word(str_cmd_list, word):
         return 0
 
 
-def split_from_word(cmd_list, word):
+def split_from_word(cmd_list, word, mode):
     if word in cmd_list:
         idx = cmd_list.index(word)
-        previous = cmd_list[:idx]
-        post = cmd_list[idx:]
-        return (previous, post)
+        if mode == 'forward':
+            subset = cmd_list[idx:]
+        elif mode == 'backward':
+            subset = cmd_list[:idx]
+        return subset
     else:
-        return (cmd_list, [])
+        return cmd_list
 
 
 def string_to_list(string):
