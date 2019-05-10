@@ -5,3 +5,4 @@ data/pre*
 logs/
 .vscode/
 *nohup*
+*__pycache__*
