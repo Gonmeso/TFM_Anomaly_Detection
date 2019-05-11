@@ -1,3 +1,4 @@
+import os
 import logging
 from ast import literal_eval
 
@@ -17,8 +18,8 @@ def split_from_word(cmd_list, word, mode):
         elif mode == 'backward':
             subset = cmd_list[:idx]
     else:
-        subset = cdm_list if mode == 'backward' else list()
-    return cmd_list
+        subset = cmd_list if mode == 'backward' else list()
+    return subset
 
 
 def string_to_list(string):
@@ -31,3 +32,9 @@ def init_log(logs_path, name):
                                filename=(logs_path + name),
                                filemode='w',
                                level=logging.DEBUG)
+
+
+def get_file_list(path):
+    file_list = [x for x in os.listdir(path) if 'cmd' in x]
+    file_list.sort()
+    return file_list
