@@ -16,8 +16,10 @@ def load_and_preprocess_data(path, filename, **kwargs):
     data = pd.read_csv(filepath_or_buffer=path + filename,
                        **read_params
                        )
-    data = pd.concat([data, split_ip(data['IP1'])], axis=1)
-    data = pd.concat([data, split_ip(data['IP2'])], axis=1)
+    for ip in [x for x in data.columns if 'IP' in x.upper()]:
+        data = pd.concat([data, split_ip(data[ip])], axis=1
+                         )
+
     data = pd.concat([data, process_entrypoint(data['Entrypoint'],
                                                word_list,
                                                params_dict)], axis=1)
@@ -75,7 +77,7 @@ def main():
                 'commands': {'word': 'enable', 'mode': 'forward'}
                         },
               'read_params': {
-                    'sep': '\$\$\$',
+                    'sep': r'\$\$\$',
                     'engine': 'python',
                     'header': None,
                     'names': [
