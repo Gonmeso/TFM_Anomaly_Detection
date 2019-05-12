@@ -2,8 +2,8 @@ import os
 import logging
 from helper.helpers import init_log, get_file_list
 
-DATA_PATH = '../data/'
-LOGS_PATH = '../logs/'
+DATA_PATH = 'data/'
+LOGS_PATH = 'logs/'
 
 
 def get_csv(path, filename):

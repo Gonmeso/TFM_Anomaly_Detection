@@ -4,8 +4,12 @@ from helper.helpers import *
 import numpy as np
 import pandas as pd
 
+from multiprocessing import Pool
+from functools import partial
+
 DATA_PATH = 'data/preprocessed/'
 LOGS_PATH = 'logs/'
+N_PROCESSES = 8
 
 
 def load_and_preprocess_data(path, filename, **kwargs):
@@ -65,10 +69,24 @@ def save_to_tsv(data, path, filename):
                 index=False)
 
 
+def execute(file_, path, **kwargs):
+    try:
+        logging.info('-'*20)
+        logging.info(f'Preprocessing file {file_}')
+        data = load_and_preprocess_data(path, file_, **kwargs)
+        logging.info(f'Features created for {file_}')
+        save_to_tsv(data, path, file_)
+        logging.info(f'Successfully saved preprocesed file: {file_}')
+    except Exception as e:
+        logging.warning(f"File {file_} could not be processed")
+        logging.error(f'{e}')
+
+
 def main():
 
     init_log(LOGS_PATH, 'preprocessing.log')
     logging.info('Starting preprocessing.')
+    pool = Pool(processes=N_PROCESSES)
 
     files_list = get_file_list(DATA_PATH)
     params = {'word_list': ['enable', 'sh'],
@@ -91,18 +109,8 @@ def main():
                 }
               }
 
-    for file_ in files_list:
-        try:
-            logging.info('-'*20)
-            logging.info(f'Preprocessing file {file_}')
-            data = load_and_preprocess_data(DATA_PATH, file_, **params)
-            logging.info(f'Features created for {file_}')
-            save_to_tsv(data, DATA_PATH, file_)
-            logging.info(f'Successfully saved preprocesed file: {file_}')
-        except Exception as e:
-            logging.warning(f"File {file_} could not be processed")
-            logging.error(f'{e}') 
-
+    execute_pool = partial(execute, path=DATA_PATH, **params)
+    pool.map(execute_pool, files_list)
     logging.info("Proccess finished")
 
 if __name__ == '__main__':
