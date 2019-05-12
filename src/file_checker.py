@@ -2,8 +2,12 @@ import os
 import logging
 from helper.helpers import init_log, get_file_list
 
+from multiprocessing import Pool
+from functools import partial
+
 DATA_PATH = 'data/'
 LOGS_PATH = 'logs/'
+N_PROCESSES = 8
 
 
 def get_csv(path, filename):
@@ -24,24 +28,32 @@ def save_csv(dest_path, filename, csv_file):
         pre.write(''.join(csv_file))
 
 
+def execute(file_, path):
+    logging.info(f'Checking {file_}')
+    data = get_csv(path, file_)
+
+    data = change_sep(csv_file=data,
+                      initial='$$',
+                      new='$$$',
+                      ncol=5)
+    logging.info('Separator replaced!')
+
+    logging.info('Writing file.')
+    save_csv(dest_path=path + 'preprocessed/pre_',
+             filename=file_,
+             csv_file=data)
+
+
 def main():
     init_log(LOGS_PATH, 'file_checker.log')
     logging.info('Starting file checker.')
 
-    for file_ in get_file_list(DATA_PATH):
-        logging.info(f'Checking {file_}')
-        data = get_csv(DATA_PATH, file_)
+    files_list = get_file_list(DATA_PATH)
+    pool = Pool(processes=N_PROCESSES)
 
-        data = change_sep(csv_file=data,
-                          initial='$$',
-                          new='$$$',
-                          ncol=5)
-        logging.info('Separator replaced!')
+    execute_pool = partial(execute, path=DATA_PATH)
+    pool.map(execute_pool, files_list)
 
-        logging.info('Writing file.')
-        save_csv(dest_path=DATA_PATH + 'preprocessed/pre_',
-                 filename=file_,
-                 csv_file=data)
     logging.info('Check finished.')
 
 if __name__ == '__main__':
