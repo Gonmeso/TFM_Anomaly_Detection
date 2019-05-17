@@ -26,15 +26,15 @@ def string_to_list(string):
     return literal_eval(string)
 
 
-def init_log(logs_path, name):
+def init_log(logs_path, name, level=logging.DEBUG):
     return logging.basicConfig(format='%(levelname)s - %(asctime)s: %(message)s',
                                datefmt='%d/%m/%Y %H:%M:%S',
                                filename=(logs_path + name),
                                filemode='w',
-                               level=logging.DEBUG)
+                               level=level)
 
 
-def get_file_list(path):
-    file_list = [x for x in os.listdir(path) if 'cmd' in x]
+def get_file_list(path, word='cmd'):
+    file_list = [x for x in os.listdir(path) if word in x]
     file_list.sort()
     return file_list
