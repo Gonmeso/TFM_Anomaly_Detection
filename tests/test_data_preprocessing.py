@@ -9,6 +9,7 @@ DEFAULT_DF = pd.DataFrame({
 ENTRYPOINT_PARAMS = {'ssh': {'word': 'sh', 'mode': 'backward'}}
 
 PROCESS_PARAMS = {'word_list': ['enable'],
+                  'Entrypoint': 'Entrypoint',
                   'split': ENTRYPOINT_PARAMS,
                   'read_params': {
                     'sep': ';',
