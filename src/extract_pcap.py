@@ -34,7 +34,7 @@ def get_dst_port(pkg):
 
 
 def get_timestamp(pkg):
-    time = dt.fromtimestamp(pkg.len)
+    time = dt.fromtimestamp(pkg.time)
     return str(time)
 
 
