@@ -2,6 +2,7 @@ helpers/
 .ipynb_checkpoints/
 data/cmd*
 data/pre*
+data/pcap*
 logs/
 .vscode/
 *nohup*
