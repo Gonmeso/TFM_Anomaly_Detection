@@ -38,3 +38,12 @@ def get_file_list(path, word='cmd'):
     file_list = [x for x in os.listdir(path) if word in x]
     file_list.sort()
     return file_list
+
+
+def save_to_tsv(data, path, filename):
+
+    data.to_csv(path + filename,
+                sep="\t",
+                encoding='utf-8',
+                header=True,
+                index=False)
