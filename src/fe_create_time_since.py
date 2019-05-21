@@ -16,13 +16,6 @@ def to_seconds(x):
     return x.total_seconds()
 
 
-def read_tsv(filepath, **kwargs):
-    data = pd.read_csv(filepath,
-                       sep='\t',
-                       **kwargs)
-    return data
-
-
 def create_time_diff(data, var_list):
 
     for var in var_list:

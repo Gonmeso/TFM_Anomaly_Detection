@@ -1,5 +1,6 @@
 import os
 import logging
+import pandas as pd
 from ast import literal_eval
 
 
@@ -47,3 +48,10 @@ def save_to_tsv(data, path, filename):
                 encoding='utf-8',
                 header=True,
                 index=False)
+
+
+def read_tsv(filepath, **kwargs):
+    data = pd.read_csv(filepath,
+                       sep='\t',
+                       **kwargs)
+    return data
