@@ -41,19 +41,19 @@ def create_diff_ip1_ip2(data, var_list):
     col_ip_1 = subset[var_list[0]].values
     col_ip_2 = subset[var_list[1]].values
     time_name = 'IP1_IP2_time_diff_per_value'
-    data[time_name] = 0
-    data[time_name] = data[time_name].astype('float64')
+    time_array = np.zeros(len(data))
 
     logging.info(f'Starting creation of {time_name}')
     logging.info(f'Total unique values: {len(col_ip_1)}')
     for ip_1, ip_2 in zip(col_ip_1, col_ip_2):
         start = time()
         idx = (data['IP1'] == ip_1) & (data['IP2'] == ip_2)
-        tmp = pd.DataFrame(data[idx]['Timestamp'])
+        tmp = data[idx, 'Timestamp']
         tmp = tmp.diff()
-        data[time_name][idx] = tmp.iloc[:, 0].apply(to_seconds).values
+        time_array[idx] = tmp.iloc[:, 0].apply(to_seconds).values
         end = time()
         logging.debug(f'Time elapsed: {end - start}s')
+    data[time_name] = time_array
     logging.info(f'{time_name} created!')
 
     return data
