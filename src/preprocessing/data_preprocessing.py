@@ -62,15 +62,6 @@ def process_entrypoint(entrypoint, word_list, split_from_dict=None):
     return features
 
 
-def save_to_tsv(data, path, filename):
-
-    data.to_csv(path + filename,
-                sep="\t",
-                encoding='utf-8',
-                header=True,
-                index=False)
-
-
 def execute(file_, path, **kwargs):
     try:
         logging.info('-'*20)
