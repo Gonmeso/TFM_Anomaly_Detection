@@ -41,7 +41,7 @@ def create_port_count_window(data, ip_var, port_var, window='60s'):
 
 def read_all_csv(data_path):
     logging.info('Getting file list')
-    file_list = [DATA_PATH + c for c in get_file_list(data_path, 'csv')]
+    file_list = [data_path + c for c in get_file_list(data_path, 'csv')]
     pool = Pool(processes=N_PROCESSES)
 
     pool_read_tsv = partial(extra_read,
@@ -50,7 +50,7 @@ def read_all_csv(data_path):
     df_list = pool.map(pool_read_tsv, file_list)
     data = pd.concat(df_list)
 
-    data.index = data['Timestamp']
+    data = data.set_index('Timestamp')
     logging.info('All files loaded!')
     return data.sort_index()
 
