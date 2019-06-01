@@ -31,6 +31,7 @@ def read_all_csv(data_path):
         'IP1_1', 'IP2_1',
         'IP1_2', 'IP2_2',
         'IP1_3', 'IP2_3',
+        'Port1', 'Port2'
         ], axis=1)
 
     data = data.set_index('Timestamp')
@@ -44,14 +45,14 @@ def resample_data(data, group):
 
 def aggregate_data(resampled_data, state):
 
-    resample_avg = resampled_data.mean().unstack().add_prefix(state + '_avg_')
+    resample_avg = resampled_data.mean().unstack().add_prefix('avg_')
     logging.info('Avg done')
-    resample_sum = resampled_data.sum().unstack().add_prefix(state + '_sum_')
+    resample_sum = resampled_data.sum().unstack().add_prefix('sum_')
     logging.info('Sum done')
-    resample_std = resampled_data.std().unstack().add_prefix(state + '_std_')
+    resample_std = resampled_data.std().unstack().add_prefix('std_')
     logging.info('Std done')
     resample_count = resampled_data.count().unstack()\
-        .add_prefix(state + 'source_count_')
+        .add_prefix('count_')
     logging.info('Count done')
     # resample_max = resampled_data.max().unstack()\
     #     .add_prefix(state + 'source_max_')
@@ -107,12 +108,12 @@ def generate_dataset(data):
     resampled_1 = resample_data(data, 'IP1')
     logging.info('Resample one generated, starting aggregation')
     resampled_1 = aggregate_data(resampled_1, 'source')
-    logging.info('Resample one aggregated')
+    logging.info(f'Resample one aggregated. Shape: {resampled_1.shape}')
     logging.info('Starting second resample')
     resampled_2 = resample_data(data, 'IP2')
     logging.info('Resample two generated, starting aggregation')
     resampled_2 = aggregate_data(resampled_2, 'dst')
-    logging.info('Resample two aggregated')
+    logging.info(f'Resample two aggregated. Shape: {resampled_2.shape}')
 
     del data
     logging.info('Concatenating resamples')
@@ -120,7 +121,7 @@ def generate_dataset(data):
         resampled_1,
         resampled_2
     ])
-    logging.info('Full dataset generated!')
+    logging.info(f'Full dataset generated! Shape: {data.shape}')
 
     data = data.fillna(0)
 
@@ -128,7 +129,7 @@ def generate_dataset(data):
 
 
 def main():
-    init_log(LOGS_PATH, 'create_dataset.log')
+    init_log(LOGS_PATH, f'create_dataset_{TIME_WINDOW}.log')
     logging.info('Process started!')
     data = read_all_csv(DATA_PATH)
     data = generate_dataset(data)
