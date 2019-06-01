@@ -132,7 +132,11 @@ def main():
     logging.info('Process started!')
     data = read_all_csv(DATA_PATH)
     data = generate_dataset(data)
-    save_to_tsv(data, DST_PATH, f'final_dataset_{TIME_WINDOW}.csv')
+    data.to_csv(DST_PATH + f'final_dataset_{TIME_WINDOW}.csv',
+                sep="\t",
+                encoding='utf-8',
+                header=True,
+                index=True)
     logging.info('File saved!')
     logging.info('Process finished!')
 
