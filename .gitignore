@@ -8,3 +8,8 @@ logs/
 *nohup*
 *__pycache__*
 data/final/*
+models/models*/
+src/EDA/Testing Purpuoses.ipynb
+src/preprocessing/__init__.py
+src/utils.py
+create_models.sh
