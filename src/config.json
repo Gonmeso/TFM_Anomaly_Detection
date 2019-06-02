@@ -1,0 +1,17 @@
+{
+    "IsolationForest": {
+        "n_estimators": 500,
+        "random_state": 101,
+        "verbose": 1,
+        "n_jobs": -1,
+        "contamination": 0.01,
+        "behaviour": "new"
+    },
+    "Autoencoder": {
+        "optimizer": "adam",
+        "loss": "mean_squared_error",
+        "epochs": 30,
+        "batch_size": 256,
+        "shuffle": true
+    }
+}
