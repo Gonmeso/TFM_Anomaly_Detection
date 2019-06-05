@@ -176,5 +176,97 @@ Dentro de la temporalidad de las conexiones se pueden observar patrones de las c
 Se observa:
 
 \begin{itemize}
-    \item Un patrón claro de la cantidad de conexiones, comienza a aumentar durante la mañana y la cantidad de peticiones disminuye por la tarde, lo que puede indicar que la carga en los dispositivos se realiza
+    \item Un patrón claro de la cantidad de conexiones, comienza a aumentar durante la mañana y la cantidad de peticiones disminuye por la tarde
+    \item En ventanas más pequeñas existe una caída cerca de las 11 horas y un pequeño pico después.
+    \item Se aprecia un pequeño valle a las 14:00, más pronunciado en ventanas pequeñas.
+    \item Gran caída sobre las 18:00.
+    \item En las comparaciones entre ventanas, se aprecia como el patrón es semejante entre ellas.
 \end{itemize}
+
+En cuanto a las variables binarias, se observa que se encuentran muy descompensadas y existen pocas observaciones que las contengan:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \; & is\_busybox & is\_enable & is\_sh \\ [0.5ex]
+    \hline
+        \textbf{0} & 9812548 & 10114993 & 9643741 \\
+        \textbf{1} & 358980 & 56535 & 527787 \\ [1ex]
+    \hline
+    \end{tabular}
+    \caption{Tabla de frecuencias de las variables binarias}
+    \label{tab:bintable}
+\end{table}
+
+Por último, en la exploración inicial se observo la distribución de la variable \textit{Length}. En la figura \ref{fig:lenhist} se puede apreciar como la mayor parte de las conexiones se realizan con una longitud muy pequeña,  recayendo la mayor parte de los valores en torno a 40-50 o con una magnitud grande, generalmente en torno a los 1400, mientras que los valores intermedios son minoría.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/lenhist.PNG}
+    \caption{Histograma de la variable \textit{Length}}
+    \label{fig:lenhist}
+\end{figure}
+
+Sobre la variable \textit{Payload} no se realizó ningún tipo de exploración, a parte del parseo, debido a la dificultad de procesar los datos y adaptarlos a un formato más tabular. Se trató de obtener la secuencia de comandos en aquellas observaciones no cifradas sin embargo, no se consiguió obtener esta secuencia que podría haber ayudado en gran medida aportando una gran cantidad de información. Algnas de las variables que se podrían haber obtenido son: cantidad de comandos en secuencia, longitud media de los comandos o incluso técnicas de NLP como \textit{Tf-idf (Term frequency – Inverse document frequency)}.
+
+Con la información obtenida y con un mayor conocimiento de los datos disponibles, se propusieron nuevas variables que podrían aportar más información y podrían ser más útiles a los modelos (en este momento aún por decidir). Tras varios intentos se generaron las siguientes variables:
+
+\begin{itemize}
+    \item \textit{IP1\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual de la IP de origen. 
+    \item \textit{IP2\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual de la IP de destino.
+    \item \textit{IP1\_IP2\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual entre IPs únicas de origen y destino.
+    \item \textit{Port1\_last\_1}: cantidad de puertos únicos utilizados por la IP de origen en una ventana de un minuto
+    \item \textit{Port2\_last\_1}: cantidad de puertos únicos utilizados por la IP de destino en una ventana de un minuto
+\end{itemize}
+
+Todas estas variables se generan en especifico para los valores únicos de las IPs, es decir, cuando se utiliza la IP de origen, se itera entre todos los valores únicos y por cada valor se genera la ventana o la diferencia de tiempo. Con esto se consigue que las nuevas variables solo estén relacionadas con las mismas IPs, tanto de origen, destino o para el caso de \textit{IP1\_IP2\_time\_diff\_per\_value} de ambas y que no dependan de conexiones entre distintas IPs.
+
+Con las nuevas variables se pretende conseguir distintos tipos de información, con la diferencia de tiempo en la IP de origen, se pretende observar si se está utilizando asiduamente, esta teniendo un pico de conexiones o si por el contrario las establece raramente. Por otro lado, para la IP de destino se pretende observar si esta siendo objetivo de muchas conexiones en cortos periodos de tiempo, que podrían significar ataques \textit{DDoS (Distributed Denial of Service)}. Para la diferencia entre las conexiones únicas de IP se pretende obtener si se pueden estar realizando escaneos de puertos sobre la IP de destino. En el caso de las variables de puertos, su finción es obtener información más precisa de si puede estar realizando un escaneo o existen IPs de origen con muchas conexiones simultáneas que observan distintos destinos.
+
+Una vez generadas estas variables, se necesita observar la cercanía (o distancia) entre las redes, puesto que es muy común que una vez se infecte un dispositivo, éste intente infectar aquellos dispositivos que se encuentren en su misma red o una red cercana. Inicialmente se planteo utilizar la IP como variable numérica y obtener la distancia euclídea entre la IP origen y destino, sin embargo, no existe ningún tipo de relación entre ellas de esta manera, es decir, la IP 1 y 2 no están a la misma distancia que las IPs 230 y 231. Aprovechando las variables generadas de las IPs con las subredes y el host, se podría calcular la distancia entre ellas, sin embargo, en este caso tomaría como equivalente la distancia entre hosts y la distancia entre redes principales sin embargo, redes con distinto valor no están relacionadas mientras que si la única diferencia es en el host, estos se encuentran en la misma red.
+
+\begin{equation}
+    dist(IP_{red1}, IP_{red2}) \neq  dist(IP_{host1}, IP_{host2})
+\end{equation}
+
+Para ello se tomó la IP como un espacio 4-dimensional (red1, red2, red3 y host) con valores ponderados, 1000 para la primera red, 100 para la segunda, 10 para la tercera y uno para el host.
+
+\begin{equation}
+    IP_x = (x_1, x_2, x_3, x_4)
+\end{equation}
+\begin{equation}
+    dist(IP_x, IP_y) = \sqrt{1000*(x_1 - y_1)^2 + 100*(x_2 - y_2)^2 + 10*(x_3 - y_3)^2 + (x_4 - y_4)^2}
+\end{equation}
+
+Con esto una diferencia de uno en la red principal, daría una distancia de \(\sqrt{1000} \approx 32\).
+
+Tras realizar pruebas con este tipo de distancia, se decidió utilizar otro enfoque mejorando los resultados. En lugar de tomar la IP como un valor 4-dimensional, se tomo como 32-dimensional, es decir, una dimensión por cada bit.
+
+\begin{equation}
+    IP = 192.128.1.1 = 11000000100000000000000100000001
+\end{equation}
+
+Para dar aún más peso a los valores iniciales y la cercanía a nivel de red se utilizo el operador \textit{XOR}, devolviendo un 1 para cuando existe diferencia entre los bits de la misma posición o 0 si el valor es igual. Una vez aplicado el operador, se cuentan el número de ceros por la izquierda, en otras palabras, el número de bits iniciales (redes principales) que coinciden, al momento que aparece una diferencia se para de contar. El número resultante se le resta a 32 y se divide entre 32 para normalizar el valor entre 1 y 0, siendo el uno redes completamente distintas y el cero la misma red y el mismo host. Podemos ver el siguiente ejemplo entre IPs que solo se diferencia en el host:
+
+
+\begin{gather*}
+IP_1 = 192.128.1.1 = 11000000100000000000000100000001 \\
+IP_2 = 192.128.1.2 = 11000000100000000000000100000010 \\
+XOR(IP_1, IP_2) = 00000000000000000000000000000010 \\
+n_{zeros} = 31 \\
+dist(IP_1, IP_2) = \frac{(32 - n_{zeros})}{32} = \frac{1}{32}
+\end{gather*}
+
+En el caso de diferencias entre redes:
+
+\begin{gather*}
+    IP_3 = 255.128.1.1 = 11111111100000000000000100000010 \\
+    XOR(IP_1, IP_3) = 00111111100000000000000000000000 \\
+    n_{zeros} = 2 \\
+    dist(IP_1, IP_3) = \frac{(32 - n_{zeros})}{32} = \frac{30}{32}
+\end{gather*}
+
+Como se puede observar la distancia aumenta en gran medida con las redes y en muy poca con los host, aportando más valor como nueva variable que las distancias utilizadas inicialmente.
+
+Una vez creadas las nuevas variables, se procede a la exploración de las mismas para su explotación en la creación del dataset final.
