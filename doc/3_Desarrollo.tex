@@ -269,4 +269,168 @@ En el caso de diferencias entre redes:
 
 Como se puede observar la distancia aumenta en gran medida con las redes y en muy poca con los host, aportando más valor como nueva variable que las distancias utilizadas inicialmente.
 
-Una vez creadas las nuevas variables, se procede a la exploración de las mismas para su explotación en la creación del dataset final.
+Una creadas las nuevas variables se realiza otra exploración con el fin de identificar si pueden ser útiles y si es así como tratarlas de cara a la detección de anomalías. Siendo uno de los primeros pasos la correlación entre las variables visualizándolo todo en un \textit{heatmap}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/corr.PNG}
+    \caption{Mapa de correlaciones}
+    \label{fig:corr}
+\end{figure}
+
+Se pueden observar lo siguiente:
+
+\begin{itemize}
+    \item Correlación entre los puertos negativa, posiblemente por la asignación de puertos por encima de 40000 en el inicio de las conexiones.
+    \item A mayor número de puerto menor \textit{Length}.
+    \item No existen correlaciones entre las redes, subredes y hosts de las IPs.
+    \item Parece que a mayor puerto de destino, mayor \textit{Length}.
+    \item Las distintas variables de diferencia de tiempo parecen no estar correladas entre sí.
+    \item La cantidad de puertos en el último minuto están negativamente correladas entre ellas.
+\end{itemize}
+
+Para las diferencias de tiempo se observan que la mayor parte se encuentran en valores muy pequeños, inferiores a un segundo en la IP de origen ,\ref{Fig:ip1_diff1} \ref{Fig:ip1_diff2}. Este comportamiento se repite también para la IP destino, pero ésta contiene más valores dentro del rango inferior a un segundo que la IP de origen \ref{Fig:ip2_diff1} \ref{Fig:ip2_diff2}. En el caso de la diferencia conjunta, el patrón es muy similar a la IP de destino pero con una cantidad menor de observaciones, en otras palabras, hay IPs únicas que solo se han conectado una vez y no tienen diferencia de tiempo \ref{Fig:ip12_diff1} \ref{Fig:ip12_diff2}.
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip1diff_1.PNG}
+     \caption{Distribución total de \textit{IP1\_time\_diff}}
+     \label{Fig:ip1_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip1diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP1\_time\_diff} }
+     \label{Fig:ip1_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip2diff_1.PNG}
+     \caption{Distribución total de \textit{IP2\_time\_diff}}
+     \label{Fig:ip2_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip2diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP2\_time\_diff} }
+     \label{Fig:ip2_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip12diff_1.PNG}
+     \caption{Distribución total de \textit{IP1\_IP2\_time\_diff}}
+     \label{Fig:ip12_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip12diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP1\_IP2\_time\_diff} }
+     \label{Fig:ip12_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/ipdiff_comp.PNG}
+    \caption{Digrama de cajas según diferencia de tiempo}
+    \label{fig:ipdiff_comp}
+\end{figure}
+
+Otra variable a tomar en cuenta es la distancia entre IPs. Dentro de la exploración (\ref{fig:ipdist}) se ha observado como la gran mayoría de las IPs provienen de redes completamente distintas, muy pocas IPs comparten la primera red y solo unas pocas observaciones comparten más que los primeros 8 dígitos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/ip_distance.PNG}
+    \caption{Diagrama de barras de la distancia entre IPs}
+    \label{fig:ipdist}
+\end{figure}
+
+En cuanto a los puertos y al número de puerto utilizados en el último minuto aparecen cosas interesantes:
+
+\begin{itemize}
+    \item La mayor parte de los registros han utilizado de 2 a 7 puertos distintos en el último minuto, tanto para destino como origen.
+    \item La distribución muestra que hay una gran cantidad de registros que han utilizado de 30 a 50 puertos en el último minuto.
+    \item La cantidad de puertos en el último minuto en origen contiene registros con un gran número de puertos.
+\end{itemize}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1_last.PNG}
+     \caption{Distribución de número de puertos en el último minuto de origen}
+     \label{Fig:port_time1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port2_last.PNG}
+     \caption{Distribución de número de puertos en el último minuto de destino}
+     \label{Fig:port_time2}
+   \end{minipage}
+\end{figure}
+
+\begin{itemize}
+    \item Los puertos están más distribuidos en destino.
+    \item Los puertos en origen están más centrados en valores bajos
+    \item Se pueden apreciar patrones de conexión cruzando los puertos
+\end{itemize}
+
+\begin{figure}[H]
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/dist_ports.PNG}
+     \caption{Diagramas de caja de los puertos en origen y destino}
+     \label{Fig:dist_port}
+   \end{minipage}\hfill
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1vs2.PNG}
+     \caption{Gráfica de puntos entre puertos de origen y destino}
+     \label{Fig:scatterport}
+   \end{minipage}
+\end{figure}
+
+Utilizando las variables binarias como ejes, algunas demuestran cierta diferencia en la dispersión, como por ejemplo en las variables de número de puertos.
+
+\begin{figure}[H]
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1_bin.PNG}
+     \caption{Diagramas de caja de número de puertos origen según variables binarias}
+     \label{Fig:port1_bin}
+   \end{minipage}\hfill
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port2_bin.PNG}
+     \caption{Diagramas de caja de número de puertos destino según variables binarias}
+     \label{Fig:port2_bin}
+   \end{minipage}
+\end{figure}
+
+\section{Creación del set de datos final}
+
+Tal y como se ha comentado anteriormente, por lo general las conexiones realizadas en momentos anteriores no tienen por qué estar relacionadas entre sí, por lo que utilizar la marca de tiempo como índice de los datos para alimentar el modelo no acabaría siendo útil del todo. Por ello, se busca la forma de poder mantener una temporalidad dentro de las variables pero que las observaciones estén relacionadas según las conexiones de origen y destino.
+
+La vía utilizada para generar este set de datos fue basarse en tomar las IPs como índice, es decir, una observación (fila) corresponde a una IP en la que las variables (columnas) tienen la temporalidad. Para ello se establecieron tres ventanas de tiempo distintos, 5 minutos, 10 minutos y 30 minutos, donde cada variable inicial genera nuevas variables como la media, suma, desviación típica y número de registros dentro del periodo total de conexiones (día dos de Febrero).
+
+\begin{gather*}
+n_{agregaciones} = 4 \\
+n_{periodo} = \frac{T_{fin} - T_{ini}}{ventana} \\
+n_{por variable} = n_{agregaciones} * n_{periodo} \\
+total\_columnas = n_{por variable} * num\_variables
+\end{gather*}
+
+Según el tamaño de la ventana el \textit{dataset} resultante tendrá más o menos tamaño, debido a que una menor ventana implica la creación de más periodos en las variables. Por otro lado, no todas las conexiones tienen observaciones en los datos iniciales, es decir, hay conexiones que se pueden dar por la tarde y no por la mañana, para estas conexiones se rellena el valor a cero, por lo que si se observa la cantidad de ceros, se vera que se trata de una matriz dispersa. Un peuqeño ejemplo del dataset resultante sería el siguiente:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{figs/dataset.PNG}
+    \caption{Ejemplo de \textit{dataset} final}
+    \label{fig:dataset}
+\end{figure}
