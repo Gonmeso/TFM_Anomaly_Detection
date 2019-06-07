@@ -426,11 +426,124 @@ n_{por variable} = n_{agregaciones} * n_{periodo} \\
 total\_columnas = n_{por variable} * num\_variables
 \end{gather*}
 
-Según el tamaño de la ventana el \textit{dataset} resultante tendrá más o menos tamaño, debido a que una menor ventana implica la creación de más periodos en las variables. Por otro lado, no todas las conexiones tienen observaciones en los datos iniciales, es decir, hay conexiones que se pueden dar por la tarde y no por la mañana, para estas conexiones se rellena el valor a cero, por lo que si se observa la cantidad de ceros, se vera que se trata de una matriz dispersa. Un peuqeño ejemplo del dataset resultante sería el siguiente:
+Según el tamaño de la ventana el \textit{dataset} resultante tendrá más o menos tamaño, debido a que una menor ventana implica la creación de más periodos en las variables. Por otro lado, no todas las conexiones tienen observaciones en los datos iniciales, es decir, hay conexiones que se pueden dar por la tarde y no por la mañana, para estas conexiones se rellena el valor a cero, por lo que si se observa la cantidad de ceros, se vera que se trata de una matriz dispersa. Un pequeño ejemplo del dataset resultante sería el siguiente:
 
-\begin{figure}[H]
+\begin{figure}[h]
     \centering
-    \includegraphics[width=15cm]{figs/dataset.PNG}
+    \includegraphics[width=16cm]{figs/dataset.PNG}
     \caption{Ejemplo de \textit{dataset} final}
     \label{fig:dataset}
 \end{figure}
+
+El \textit{dataset} tendrá las siguientes características (algunas visibles en \ref{fig:dataset}):
+\begin{itemize}
+    \item Las filas están formadas por las IPs.
+    \item Se utilizan como índice las IPs únicas de origen y las IPs únicas de destino.
+    \item Se diferencian mediante una variable binaria.
+    \item La temporalidad se traslada a las columnas.
+    \item Cada variable original se transforma en agregaciones durante el periodo total.
+    \item La dimensionalidad del \textit{dataset} queda definida por la ventana de tiempo escogida.
+    \item Una gran parte de los datos son ceros.
+    \item La cantidad de filas es fija, dado que la cantidad única de IPs es constante independientemente de la ventana de tiempo.
+\end{itemize}
+
+Asimismo, sobre estas variables se podrían seguir generando nuevas variables utilizando distintas ventanas (\textit{rolling window}) sin embargo, para evitar aumentar el tamaño no se crearon nuevas ventanas. Por otro lado, se añadieron nuevas variables binarias indicando el valor de los últimos 8 bits, es decir, el host de las IPs. 
+
+Se crearon varios datasets con el fin de identificar anomalías con distintas características, algunas pueden provenir de acciones muy rápidas en un tiempo pequeño que pueden ser detectadas por una ventana pequeña y aquellas acciones que se realicen periódicamente puedan ser detectadas por ventanas más largas.
+\newpage
+
+\section{Algoritmos de \textit{Machine Learning}}
+
+Tras el estudio del estado del arte y las pruebas realizadas durante el preprocesamiento y la creación del \textit{dataset} la técnica utilizada es un ensamblado de dos algoritmos:
+\begin{itemize}
+    \item \textit{Isolation Forest}
+    \item \textit{Autoencoder}
+\end{itemize}
+
+La decisión de realizar un ensamblado de varios modelos recae en la capacidad que otorga para generalizar mejor a la hora de realizar las detecciones y así evitar que ciertas observaciones puedan afectar en mayor medida al modelo.
+
+\subsection{\textit{Isolation Forest}}
+
+Como su nombre indica se trata de un modelo basado en árboles de decisión enfocado en el aislamiento de las observaciones. Este tipo de modelo funciona muy bien con \textit{datasets} de alta dimensionalidad y ofrece un rendimiento muy bueno dada su poca complejidad computacional y su bajo uso de memoria \cite{liu2008isolation}.
+
+Mientras que la mayor parte de herramientas de detección de anomalías se basan en perfilar el uso normal de los casos y clasificar como anomalía aquello que diverja de este perfil, por ejemplo, una \textit{clusterización} podría indicar que un grupo no es anómalo debido al tamaño del mismo, además de hacer un uso mucho mayor de memoria debido al cálculo de las disimilitudes (o distancias). El \textit{Isolation Forest} se basa en otra metodología, donde en lugar de perfilar, pretende encontrar aquellas observaciones que más aisladas estén. Para ello se basa en dos premisas:
+\begin{itemize}
+    \item Las anomalías tienen atributos muy diferentes de los valores normales.
+    \item La cantidad de anomalías presenta un porcentaje muy pequeño dentro de los datos.
+\end{itemize}
+
+En otras palabras, las anomalías son pocas y diferentes, por lo que son más propensas a estar aisladas que las observaciones normales. Este aislamiento se realiza mediante la creación de arboles de decisión, donde las anomalías necesitarán menos particiones para aislarse que los datos normales.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/tree.png}
+    \caption{Fronteras en un árbol de decisión}
+    \label{fig:tree_boundaries}
+\end{figure}
+
+La medida utilizada en el \textit{Isolation Forest} es la profundidad del árbol o \textit{path length}, por ejemplo la figura \ref{fig:tree_boundaries} tendría una profundidad de tres. Cada árbol realiza particiones aleatorias de modo que cada observación puede formar parte de varios árboles con distintas profundidades, por lo que el \textit{path length} final es la media de todos ellos. En la siguiente figura \ref{fig:isolation_forest} se observa como la primera observación ha necesitado de más particiones (más profundidad del árbol) para poder aislar la observación que el segundo caso, que ha necesitado de muchas menos, por ello este segundo punto tendrá una valoración más alta como anomalía.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/isolation.png}
+    \caption{Ejemplo de un árbol de \textit{Isolation Forest}}
+    \label{fig:isolation_forest}
+\end{figure}
+
+Para la categorización como anomalía se define una puntuación que ayude a determinar que puntos pueden ser anómalos y cuales no. Tomando la profundidad de un árbol como \( h(x)\) y la media de profundidad como \( E(h(x))\) se puede definir una puntuación utilizando la profundidad estimada media \( c(n)\):
+
+\begin{gather*}
+c(n) = 2H(n-1) - (2(n-1)/n) \\
+H(i) = ln(i) + 0.5772156649 \\
+s(x,n) = 2^{-\frac{E(h(x))}{c(n)}} \\
+\end{gather*}
+
+Donde \textit{n} es el número de observaciones totales, \textit{x} una observación y \(s(x,n)\) la puntuación de anomalía. Los resultados de la puntuación se pueden interpretar de la siguiente manera según el cociente de \( c(n)\) y \( E(h(x))\):
+\begin{itemize}
+    \item Un valor cercano a uno, indica que se trato posiblemente de una anomalía.
+    \item Un valor cercano a cero, indica que no es una anomalía.
+    \item Si todas las observaciones devuelven un valor cercano a 0.5 se puede considerar que no existen anomalías.
+\end{itemize}
+
+Además de esta puntuación, para favorecer a la detección de anomalías, \textit{Isolation Forest} utiliza técnicas de submuestreo o \textit{subsampling} que favorece la identificación de las anomalías y disminuye el coste computacional.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/subsample.png}
+    \caption{Submuestreo aplicado en \textit{Isolation Forest}}
+    \label{fig:subsample}
+\end{figure}
+
+\subsection{\textit{Autoencoder}}
+
+El funcionamiento y características generales de los \textit{Autoencoders} se ha explicado en la sección \ref{subsubsection:Autoencoders}, por lo que en este apartado se explicará la arquitectura escogida.
+
+Para este caso se ha construido un \textit{Deep Autoencoder}, es decir, varias capas ocultas que dependen de la cantidad de columnas de los datos de entrada, pero proporcionalmente mantiene la estructura. Consta de una capa de entrada, cinco capas intermedias (dos de \textit{Encoder}, dos de \textit{Decoder} y la representación de menor dimensionalidad) y una capa de salida.
+
+Las dimensiones de las capas intermedias están definidas de la siguiente forma:
+\begin{itemize}
+    \item \textit{\(Encoder_1\) y \(Decoder_1\)}: \(\frac{ncol}{5}\)
+    \item \textit{\(Encoder_2\) y \(Decoder_2\)}: \(\frac{ncol}{10}\)
+    \item Representación: \(\frac{ncol}{25}\)
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/ae_architecture.PNG}
+    \caption{Arquitectura básica del \textit{Autoencoder}}
+    \label{fig:ae_arch}
+\end{figure}
+
+Para la arquitectura anterior \ref{fig:ae_arch} se considera un \textit{dataset} con 50 columnas, por lo que la primera y penúltima capa tendrán 10 neuronas, las siguientes 5 neuronas y la capa central 2. El número de neuronas es proporcional al tamaño, por lo que crecerá acorde, redondeando hacia arriba para las divisiones no exactas.
+
+Dado que el entrenamiento depende de la métrica de reconstrucción, esta se ha escogido acorde al tipo de datos con los que se entrena la red neuronal. Debido a las ventanas generadas y las agregaciones el tipo de variables resultantes son numéricas y en muy poca proporción por las variables de host hay 8 binarias, por ello la función de reconstrucción (o de pérdida para la red neuronal) utilizada es el error cuadrático medio \ref{eq:mse}.
+
+\begin{equation}\label{eq:mse}
+    MSE = \frac{1}{n}\sum_{t=1}^{n}X_i - \hat{X}
+\end{equation}
+
+Utilizando esta métrica, la red neuronal buscará disminuirlo lo máximo posible este error, aprendiendo de conexiones legítimas y anómalas. Aunque la red neuronal intente optimizar el error de estas últimas, se considera que la mayor parte de de las conexiones no son anómalas, por lo tanto la optimización en las anomalías no cobran tanto peso durante el entrenamiento y permiten diferenciarse del resto de puntos por el error de reconstrucción.
+
+\subsection{Ensamblado de modelos}
+
+Para el ensamblado de modelos se ha tomado como modelo "principal" el \textit{Isolation Forest}
