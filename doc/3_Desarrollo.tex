@@ -64,3 +64,538 @@ El \textit{Timestamp} puede indicar que el problema debería tratarse como una s
 Los datos provienen de la recolección de información realizada el 2 de Febrero de 2019, contando tanto con tráfico legítimo como ilegítimo. Sin embargo, no existe clasificación de los datos, por lo que se trata de un problema de carácter no supervisado y como consecuencia se utilizarán técnicas como las descritas en el capítulo \ref{chapter:Estado del Arte} de aprendizaje no supervisado.
 
 \newpage
+
+\section{Exploración y Preprocesamiento}
+
+En este aportado se van a mostrar los pasos seguidos durante la exploración y  el procesamiento asicomo la información obtenida durante el proceso. Ambas etapas se realizan de manera conjunta, es decir, la exploración conlleva la realización de distintos preprocesamientos o otras palabras, se realiza \textit{Feature Engineering}. Se puede definir como el proceso de exploración y procesamiento de datos que ayudan a la creación de nuevas variables que puedan mejorar la eficiencia del modelo\cite{fe}.
+
+El paso inicial era la extracción de los datos del fichero \textit{pcap}, el tamaño total era cercano a los 14 GB, de modo que en el momento de cargar la información en memoria, el uso aumentaba considerablemente dificultando su manipulación, por lo que el primer paso fue investigar si existía alguna forma de dividirlo. El resultado fue el uso de la herramienta \textit{tcpdump}, una línea de comandos utilizada para el análisis de paquetes escrita en C/C++ \cite{tcpdump}, la misma permitía la división del fichero original en pequeños ficheros con el tamaño deseado. La división se realizó con un tamaño máximo de 500 MB, para permitir la posterior paralelización de los ficheros y evitar un uso muy alto de memoria, dando como resultado 15 ficheros.
+
+Una vez obtenidos los ficheros se deben procesar de modo que el resultado sean datos de forma tabular, que puedan ser explorados y preprocesados con mayor facilidad. Para realizar este proceso se utilizó el módulo de \textit{python}, \textit{scapy}, utilizado comúnmente en tareas de análisis de redes. Gracias a la granularidad de los nuevos ficheros y a utilizar \textit{python} se procesan 9 ficheros simultáneamente utilizando el módulo mencionado, éste se encarga de recorrer las capas mencionadas y extraer los datos y organizarlos de forma tabular, concretamente en \textit{csv}. En ciertos casos, los paquetes pueden contener el \textit{payload}, cuando este es el caso se extrae y se añade como una columna más, para el resto se trata como si fueran \textit{NA} o datos sin registro. 
+
+Una vez terminado el proceso se obtienen los primeros datos en brutos de carácter estructurado. Se genera una cantidad análoga de ficheros con un volumen tres veces superior a los datos originales, con las variables mencionadas en la sección anterior. Antes de realizar ningún tipo de exploración se realiza un preprocesado en paralelo para generar nuevas variables sencillas que puedan aportar información de cara a la primera exploración. Las nuevas variables son las siguientes:
+
+\begin{itemize}
+    \item Red 1 IP origen
+    \item Red 2 IP origen
+    \item Red 3 IP origen
+    \item Host IP origen
+    \item Red 1 IP destino
+    \item Red 2 IP destino
+    \item Red 3 IP destino
+    \item Host IP destino
+    \item is\_busybox
+    \item is\_sh
+    \item is\_enable
+\end{itemize}
+
+Las variables en referencia a las IPs se generaron haciendo una división de las direcciones:
+
+\begin{equation}
+    192.168.1.1 => 192_{red1}\; 168_{red2}\; 1_{red3}\; 1_{host}
+\end{equation}
+
+El resto de las variables se obtuvieron mediante el \textit{parseo} del \textit{payload} en aquellos registros que así lo tuvieran y buscando la existencia de las palabras clave \textit{sh, enable y busybox}, siendo la mayor parte de los registros sin contenido en el \textit{payload} o incluso cifrado. La razón por la que se eligieron estas palabras clave es por el uso de este tipo de comandos en los dispositivos IoT por \textit{malwares} conocidos, \textit{busybox} se trata de una versión mínima de un sistema operativo \textit{UNIX} utilizado en pequeños dispositivos y que puede ser explotado por \textit{malware}\cite{ibmiot}.  De la misma manera \textit{sh} y \textit{enable} son comandos comúnmente utilizados en este tipo de ataques. Las tres variables son de tipo binario, es decir, indica si en el registro existe el comando o no.
+
+El proceso de exploración se realiza en \textit{Jupyter Notebooks} con la ayuda del módulo \textit{matplotlib} y \textit{seaborn} para las visualizaciones. Para esta primera exploración, se van a buscar los medios más utilizados en las distintas conexiones, es decir, las IPs más utilizadas, puertos más utilizados, información de las variables binarias y la evolución de la cantidad de conexiones en el tiempo.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=15cm]{figs/initial_data.PNG}
+    \caption{Datos en forma tabular}
+    \label{fig:tabulardata}
+\end{figure}
+
+Para realizar la exploración se unen todos los datos contenidos en los ficheros generados ordenados por la marca de tiempo. Una vez cargados, se realizan las operaciones básicas para determinar que no faltan datos, es decir, que en las variables originales (salvo el \textit{payload}) no falta ningún tipo de registro. En este caso no hay existencia de \textit{NAs} en las variables, en otras palabras, todos los datos tienen los registros necesarios.
+
+En la siguiente gráfica se puede observar la cantidad de valores únicos en cada variable, en la que se pueden apreciar dos cosas claras:
+
+\begin{itemize}
+    \item Las variables con más únicos son las de los puertos.
+    \item No hay una gran cantidad de IPs únicas.
+\end{itemize}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=17cm]{figs/unique_vals.PNG}
+    \caption{Cantidad de valores únicos en las variables}
+    \label{fig:uniquevals}
+\end{figure}
+
+La parte de los puertos en origen (subíndice 1) tiene sentido que sea mayor que en la IP destino, dado que a la hora de iniciar conexiones por lo general el puerto origen es aleatorio y el de destino suele ser fijo, como el puerto 22 para conexiones \textit{ssh}, por lo que puede significar que se estuviera haciendo un escaneo de puertos. Esto se puede ver en el diagrama de barras representando los puertos más utilizados en origen y destino:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=17cm]{figs/ports.PNG}
+    \caption{Puertos más utilizados}
+    \label{fig:ports}
+\end{figure}
+
+Se puede observar lo siguiente:
+
+\begin{itemize}
+    \item EL puerto más utilizado en ambos casos con diferencia es el puerto 23. Es el puerto utilizado para realizar las conexiones vía \textit{telnet}.
+    \item Seis de los diez puertos más utilizados en la IP de origen son puertos aleatorios, utilizados al realizar la conexión. Los puertos del rango 4xxxx-6xxxx caen en este uso efímero.
+    \item El puerto 80 por lo general es utilizado en conexiones \textit{HTTP} (web).
+    \item El puerto 445 es utilizado para la transferencia de ficheros.
+    \item El puerto 1433 suele utilizarse en conexiones de \textit{Microsoft SQL Server}.
+    \item El 2323 puede ser un puerto alternativo para la conexión vía \textit{telnet}\cite{telnetport}.
+    \item El puerto 22 se utiliza para conexiones \textit{ssh}.
+    \item Tanto para destino como para origen se repiten los puertos 46590, 50616 y 60000, cayendo en el rango de puertos temporales.
+\end{itemize}
+
+En el caso de las IPs más utilizadas se puede ver lo siguiente:
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=1\linewidth]{figs/ip1.PNG}
+     \caption{IPs de origen con la mayor cantidad de conexiones}
+     \label{Fig:ip1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=1\linewidth]{figs/ip2}
+     \caption{IPs de destino con la mayor cantidad de conexiones}
+     \label{Fig:ip2}
+   \end{minipage}
+\end{figure}
+
+Con una cantidad de datos cercana a los 11 millones de registros la mayor parte de las conexiones se registran en estos diez valores máximos con una diferencia de casi el doble de la primera a la segunda tanto para origen como destino.
+
+Dentro de la temporalidad de las conexiones se pueden observar patrones de las conexiones a lo largo del día y su evolución. Debido a la granularidad de los tiempos (capturan con un detalle de microsegundos) estos patrones se han agrupado en distintas ventanas, de modo que en ventanas más pequeñas se puedan detectar ascensos y descensos bruscos, mientras que en las ventanas grandes se puede observar el patrón general. Por ello se han realizado gráficas con ventanas de 1 minuto, 5 minutos y 30 minutos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=17.5cm]{figs/daily_connections.PNG}
+    \caption{Evolución de las conexiones a lo largo del tiempo con distintas ventanas}
+    \label{fig:dailyconn}
+\end{figure}
+
+Se observa:
+
+\begin{itemize}
+    \item Un patrón claro de la cantidad de conexiones, comienza a aumentar durante la mañana y la cantidad de peticiones disminuye por la tarde
+    \item En ventanas más pequeñas existe una caída cerca de las 11 horas y un pequeño pico después.
+    \item Se aprecia un pequeño valle a las 14:00, más pronunciado en ventanas pequeñas.
+    \item Gran caída sobre las 18:00.
+    \item En las comparaciones entre ventanas, se aprecia como el patrón es semejante entre ellas.
+\end{itemize}
+
+En cuanto a las variables binarias, se observa que se encuentran muy descompensadas y existen pocas observaciones que las contengan:
+
+\begin{table}[H]
+    \centering
+    \begin{tabular}{|c|c|c|c|}
+    \hline
+    \; & is\_busybox & is\_enable & is\_sh \\ [0.5ex]
+    \hline
+        \textbf{0} & 9812548 & 10114993 & 9643741 \\
+        \textbf{1} & 358980 & 56535 & 527787 \\ [1ex]
+    \hline
+    \end{tabular}
+    \caption{Tabla de frecuencias de las variables binarias}
+    \label{tab:bintable}
+\end{table}
+
+Por último, en la exploración inicial se observo la distribución de la variable \textit{Length}. En la figura \ref{fig:lenhist} se puede apreciar como la mayor parte de las conexiones se realizan con una longitud muy pequeña,  recayendo la mayor parte de los valores en torno a 40-50 o con una magnitud grande, generalmente en torno a los 1400, mientras que los valores intermedios son minoría.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/lenhist.PNG}
+    \caption{Histograma de la variable \textit{Length}}
+    \label{fig:lenhist}
+\end{figure}
+
+Sobre la variable \textit{Payload} no se realizó ningún tipo de exploración, a parte del parseo, debido a la dificultad de procesar los datos y adaptarlos a un formato más tabular. Se trató de obtener la secuencia de comandos en aquellas observaciones no cifradas sin embargo, no se consiguió obtener esta secuencia que podría haber ayudado en gran medida aportando una gran cantidad de información. Algnas de las variables que se podrían haber obtenido son: cantidad de comandos en secuencia, longitud media de los comandos o incluso técnicas de NLP como \textit{Tf-idf (Term frequency – Inverse document frequency)}.
+
+Con la información obtenida y con un mayor conocimiento de los datos disponibles, se propusieron nuevas variables que podrían aportar más información y podrían ser más útiles a los modelos (en este momento aún por decidir). Tras varios intentos se generaron las siguientes variables:
+
+\begin{itemize}
+    \item \textit{IP1\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual de la IP de origen. 
+    \item \textit{IP2\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual de la IP de destino.
+    \item \textit{IP1\_IP2\_time\_diff\_per\_value}: tiempo en segundos, de la diferencia de tiempos desde la anterior conexión y la conexión actual entre IPs únicas de origen y destino.
+    \item \textit{Port1\_last\_1}: cantidad de puertos únicos utilizados por la IP de origen en una ventana de un minuto
+    \item \textit{Port2\_last\_1}: cantidad de puertos únicos utilizados por la IP de destino en una ventana de un minuto
+\end{itemize}
+
+Todas estas variables se generan en especifico para los valores únicos de las IPs, es decir, cuando se utiliza la IP de origen, se itera entre todos los valores únicos y por cada valor se genera la ventana o la diferencia de tiempo. Con esto se consigue que las nuevas variables solo estén relacionadas con las mismas IPs, tanto de origen, destino o para el caso de \textit{IP1\_IP2\_time\_diff\_per\_value} de ambas y que no dependan de conexiones entre distintas IPs.
+
+Con las nuevas variables se pretende conseguir distintos tipos de información, con la diferencia de tiempo en la IP de origen, se pretende observar si se está utilizando asiduamente, esta teniendo un pico de conexiones o si por el contrario las establece raramente. Por otro lado, para la IP de destino se pretende observar si esta siendo objetivo de muchas conexiones en cortos periodos de tiempo, que podrían significar ataques \textit{DDoS (Distributed Denial of Service)}. Para la diferencia entre las conexiones únicas de IP se pretende obtener si se pueden estar realizando escaneos de puertos sobre la IP de destino. En el caso de las variables de puertos, su finción es obtener información más precisa de si puede estar realizando un escaneo o existen IPs de origen con muchas conexiones simultáneas que observan distintos destinos.
+
+Una vez generadas estas variables, se necesita observar la cercanía (o distancia) entre las redes, puesto que es muy común que una vez se infecte un dispositivo, éste intente infectar aquellos dispositivos que se encuentren en su misma red o una red cercana. Inicialmente se planteo utilizar la IP como variable numérica y obtener la distancia euclídea entre la IP origen y destino, sin embargo, no existe ningún tipo de relación entre ellas de esta manera, es decir, la IP 1 y 2 no están a la misma distancia que las IPs 230 y 231. Aprovechando las variables generadas de las IPs con las subredes y el host, se podría calcular la distancia entre ellas, sin embargo, en este caso tomaría como equivalente la distancia entre hosts y la distancia entre redes principales sin embargo, redes con distinto valor no están relacionadas mientras que si la única diferencia es en el host, estos se encuentran en la misma red.
+
+\begin{equation}
+    dist(IP_{red1}, IP_{red2}) \neq  dist(IP_{host1}, IP_{host2})
+\end{equation}
+
+Para ello se tomó la IP como un espacio 4-dimensional (red1, red2, red3 y host) con valores ponderados, 1000 para la primera red, 100 para la segunda, 10 para la tercera y uno para el host.
+
+\begin{equation}
+    IP_x = (x_1, x_2, x_3, x_4)
+\end{equation}
+\begin{equation}
+    dist(IP_x, IP_y) = \sqrt{1000*(x_1 - y_1)^2 + 100*(x_2 - y_2)^2 + 10*(x_3 - y_3)^2 + (x_4 - y_4)^2}
+\end{equation}
+
+Con esto una diferencia de uno en la red principal, daría una distancia de \(\sqrt{1000} \approx 32\).
+
+Tras realizar pruebas con este tipo de distancia, se decidió utilizar otro enfoque mejorando los resultados. En lugar de tomar la IP como un valor 4-dimensional, se tomo como 32-dimensional, es decir, una dimensión por cada bit.
+
+\begin{equation}
+    IP = 192.128.1.1 = 11000000100000000000000100000001
+\end{equation}
+
+Para dar aún más peso a los valores iniciales y la cercanía a nivel de red se utilizo el operador \textit{XOR}, devolviendo un 1 para cuando existe diferencia entre los bits de la misma posición o 0 si el valor es igual. Una vez aplicado el operador, se cuentan el número de ceros por la izquierda, en otras palabras, el número de bits iniciales (redes principales) que coinciden, al momento que aparece una diferencia se para de contar. El número resultante se le resta a 32 y se divide entre 32 para normalizar el valor entre 1 y 0, siendo el uno redes completamente distintas y el cero la misma red y el mismo host. Podemos ver el siguiente ejemplo entre IPs que solo se diferencia en el host:
+
+
+\begin{gather*}
+IP_1 = 192.128.1.1 = 11000000100000000000000100000001 \\
+IP_2 = 192.128.1.2 = 11000000100000000000000100000010 \\
+XOR(IP_1, IP_2) = 00000000000000000000000000000010 \\
+n_{zeros} = 31 \\
+dist(IP_1, IP_2) = \frac{(32 - n_{zeros})}{32} = \frac{1}{32}
+\end{gather*}
+
+En el caso de diferencias entre redes:
+
+\begin{gather*}
+    IP_3 = 255.128.1.1 = 11111111100000000000000100000010 \\
+    XOR(IP_1, IP_3) = 00111111100000000000000000000000 \\
+    n_{zeros} = 2 \\
+    dist(IP_1, IP_3) = \frac{(32 - n_{zeros})}{32} = \frac{30}{32}
+\end{gather*}
+
+Como se puede observar la distancia aumenta en gran medida con las redes y en muy poca con los host, aportando más valor como nueva variable que las distancias utilizadas inicialmente.
+
+Una creadas las nuevas variables se realiza otra exploración con el fin de identificar si pueden ser útiles y si es así como tratarlas de cara a la detección de anomalías. Siendo uno de los primeros pasos la correlación entre las variables visualizándolo todo en un \textit{heatmap}:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/corr.PNG}
+    \caption{Mapa de correlaciones}
+    \label{fig:corr}
+\end{figure}
+
+Se pueden observar lo siguiente:
+
+\begin{itemize}
+    \item Correlación entre los puertos negativa, posiblemente por la asignación de puertos por encima de 40000 en el inicio de las conexiones.
+    \item A mayor número de puerto menor \textit{Length}.
+    \item No existen correlaciones entre las redes, subredes y hosts de las IPs.
+    \item Parece que a mayor puerto de destino, mayor \textit{Length}.
+    \item Las distintas variables de diferencia de tiempo parecen no estar correladas entre sí.
+    \item La cantidad de puertos en el último minuto están negativamente correladas entre ellas.
+\end{itemize}
+
+Para las diferencias de tiempo se observan que la mayor parte se encuentran en valores muy pequeños, inferiores a un segundo en la IP de origen ,\ref{Fig:ip1_diff1} \ref{Fig:ip1_diff2}. Este comportamiento se repite también para la IP destino, pero ésta contiene más valores dentro del rango inferior a un segundo que la IP de origen \ref{Fig:ip2_diff1} \ref{Fig:ip2_diff2}. En el caso de la diferencia conjunta, el patrón es muy similar a la IP de destino pero con una cantidad menor de observaciones, en otras palabras, hay IPs únicas que solo se han conectado una vez y no tienen diferencia de tiempo \ref{Fig:ip12_diff1} \ref{Fig:ip12_diff2}.
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip1diff_1.PNG}
+     \caption{Distribución total de \textit{IP1\_time\_diff}}
+     \label{Fig:ip1_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip1diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP1\_time\_diff} }
+     \label{Fig:ip1_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip2diff_1.PNG}
+     \caption{Distribución total de \textit{IP2\_time\_diff}}
+     \label{Fig:ip2_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip2diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP2\_time\_diff} }
+     \label{Fig:ip2_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip12diff_1.PNG}
+     \caption{Distribución total de \textit{IP1\_IP2\_time\_diff}}
+     \label{Fig:ip12_diff1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/ip12diff_2.PNG}
+     \caption{Distribución para valores menores a un segundo de \textit{IP1\_IP2\_time\_diff} }
+     \label{Fig:ip12_diff2}
+   \end{minipage}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/ipdiff_comp.PNG}
+    \caption{Digrama de cajas según diferencia de tiempo}
+    \label{fig:ipdiff_comp}
+\end{figure}
+
+Otra variable a tomar en cuenta es la distancia entre IPs. Dentro de la exploración (\ref{fig:ipdist}) se ha observado como la gran mayoría de las IPs provienen de redes completamente distintas, muy pocas IPs comparten la primera red y solo unas pocas observaciones comparten más que los primeros 8 dígitos.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{figs/ip_distance.PNG}
+    \caption{Diagrama de barras de la distancia entre IPs}
+    \label{fig:ipdist}
+\end{figure}
+
+En cuanto a los puertos y al número de puerto utilizados en el último minuto aparecen cosas interesantes:
+
+\begin{itemize}
+    \item La mayor parte de los registros han utilizado de 2 a 7 puertos distintos en el último minuto, tanto para destino como origen.
+    \item La distribución muestra que hay una gran cantidad de registros que han utilizado de 30 a 50 puertos en el último minuto.
+    \item La cantidad de puertos en el último minuto en origen contiene registros con un gran número de puertos.
+\end{itemize}
+
+\begin{figure}[H]
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1_last.PNG}
+     \caption{Distribución de número de puertos en el último minuto de origen}
+     \label{Fig:port_time1}
+   \end{minipage}\hfill
+   \begin{minipage}{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port2_last.PNG}
+     \caption{Distribución de número de puertos en el último minuto de destino}
+     \label{Fig:port_time2}
+   \end{minipage}
+\end{figure}
+
+\begin{itemize}
+    \item Los puertos están más distribuidos en destino.
+    \item Los puertos en origen están más centrados en valores bajos
+    \item Se pueden apreciar patrones de conexión cruzando los puertos
+\end{itemize}
+
+\begin{figure}[H]
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/dist_ports.PNG}
+     \caption{Diagramas de caja de los puertos en origen y destino}
+     \label{Fig:dist_port}
+   \end{minipage}\hfill
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1vs2.PNG}
+     \caption{Gráfica de puntos entre puertos de origen y destino}
+     \label{Fig:scatterport}
+   \end{minipage}
+\end{figure}
+
+Utilizando las variables binarias como ejes, algunas demuestran cierta diferencia en la dispersión, como por ejemplo en las variables de número de puertos.
+
+\begin{figure}[H]
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port1_bin.PNG}
+     \caption{Diagramas de caja de número de puertos origen según variables binarias}
+     \label{Fig:port1_bin}
+   \end{minipage}\hfill
+   \begin{minipage}[b]{0.48\textwidth}
+     \centering
+     \includegraphics[width=0.8\linewidth]{figs/port2_bin.PNG}
+     \caption{Diagramas de caja de número de puertos destino según variables binarias}
+     \label{Fig:port2_bin}
+   \end{minipage}
+\end{figure}
+
+\section{Creación del set de datos final}
+
+Tal y como se ha comentado anteriormente, por lo general las conexiones realizadas en momentos anteriores no tienen por qué estar relacionadas entre sí, por lo que utilizar la marca de tiempo como índice de los datos para alimentar el modelo no acabaría siendo útil del todo. Por ello, se busca la forma de poder mantener una temporalidad dentro de las variables pero que las observaciones estén relacionadas según las conexiones de origen y destino.
+
+La vía utilizada para generar este set de datos fue basarse en tomar las IPs como índice, es decir, una observación (fila) corresponde a una IP en la que las variables (columnas) tienen la temporalidad. Para ello se establecieron tres ventanas de tiempo distintos, 5 minutos, 10 minutos y 30 minutos, donde cada variable inicial genera nuevas variables como la media, suma, desviación típica y número de registros dentro del periodo total de conexiones (día dos de Febrero).
+
+\begin{gather*}
+n_{agregaciones} = 4 \\
+n_{periodo} = \frac{T_{fin} - T_{ini}}{ventana} \\
+n_{por variable} = n_{agregaciones} * n_{periodo} \\
+total\_columnas = n_{por variable} * num\_variables
+\end{gather*}
+
+Según el tamaño de la ventana el \textit{dataset} resultante tendrá más o menos tamaño, debido a que una menor ventana implica la creación de más periodos en las variables. Por otro lado, no todas las conexiones tienen observaciones en los datos iniciales, es decir, hay conexiones que se pueden dar por la tarde y no por la mañana, para estas conexiones se rellena el valor a cero, por lo que si se observa la cantidad de ceros, se vera que se trata de una matriz dispersa. Un pequeño ejemplo del dataset resultante sería el siguiente:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=16cm]{figs/dataset.PNG}
+    \caption{Ejemplo de \textit{dataset} final}
+    \label{fig:dataset}
+\end{figure}
+
+El \textit{dataset} tendrá las siguientes características (algunas visibles en \ref{fig:dataset}):
+\begin{itemize}
+    \item Las filas están formadas por las IPs.
+    \item Se utilizan como índice las IPs únicas de origen y las IPs únicas de destino.
+    \item Se diferencian mediante una variable binaria.
+    \item La temporalidad se traslada a las columnas.
+    \item Cada variable original se transforma en agregaciones durante el periodo total.
+    \item La dimensionalidad del \textit{dataset} queda definida por la ventana de tiempo escogida.
+    \item Una gran parte de los datos son ceros.
+    \item La cantidad de filas es fija, dado que la cantidad única de IPs es constante independientemente de la ventana de tiempo.
+\end{itemize}
+
+Asimismo, sobre estas variables se podrían seguir generando nuevas variables utilizando distintas ventanas (\textit{rolling window}) sin embargo, para evitar aumentar el tamaño no se crearon nuevas ventanas. Por otro lado, se añadieron nuevas variables binarias indicando el valor de los últimos 8 bits, es decir, el host de las IPs. 
+
+Se crearon varios datasets con el fin de identificar anomalías con distintas características, algunas pueden provenir de acciones muy rápidas en un tiempo pequeño que pueden ser detectadas por una ventana pequeña y aquellas acciones que se realicen periódicamente puedan ser detectadas por ventanas más largas.
+\newpage
+
+\section{Algoritmos de \textit{Machine Learning}}
+
+Tras el estudio del estado del arte y las pruebas realizadas durante el preprocesamiento y la creación del \textit{dataset} la técnica utilizada es un ensamblado de dos algoritmos:
+\begin{itemize}
+    \item \textit{Isolation Forest}
+    \item \textit{Autoencoder}
+\end{itemize}
+
+La decisión de realizar un ensamblado de varios modelos recae en la capacidad que otorga para generalizar mejor a la hora de realizar las detecciones y así evitar que ciertas observaciones puedan afectar en mayor medida al modelo.
+
+\subsection{\textit{Isolation Forest}}
+
+Como su nombre indica se trata de un modelo basado en árboles de decisión enfocado en el aislamiento de las observaciones. Este tipo de modelo funciona muy bien con \textit{datasets} de alta dimensionalidad y ofrece un rendimiento muy bueno dada su poca complejidad computacional y su bajo uso de memoria \cite{liu2008isolation}.
+
+Mientras que la mayor parte de herramientas de detección de anomalías se basan en perfilar el uso normal de los casos y clasificar como anomalía aquello que diverja de este perfil, por ejemplo, una \textit{clusterización} podría indicar que un grupo no es anómalo debido al tamaño del mismo, además de hacer un uso mucho mayor de memoria debido al cálculo de las disimilitudes (o distancias). El \textit{Isolation Forest} se basa en otra metodología, donde en lugar de perfilar, pretende encontrar aquellas observaciones que más aisladas estén. Para ello se basa en dos premisas:
+\begin{itemize}
+    \item Las anomalías tienen atributos muy diferentes de los valores normales.
+    \item La cantidad de anomalías presenta un porcentaje muy pequeño dentro de los datos.
+\end{itemize}
+
+En otras palabras, las anomalías son pocas y diferentes, por lo que son más propensas a estar aisladas que las observaciones normales. Este aislamiento se realiza mediante la creación de arboles de decisión, donde las anomalías necesitarán menos particiones para aislarse que los datos normales.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/tree.png}
+    \caption{Fronteras en un árbol de decisión}
+    \label{fig:tree_boundaries}
+\end{figure}
+
+La medida utilizada en el \textit{Isolation Forest} es la profundidad del árbol o \textit{path length}, por ejemplo la figura \ref{fig:tree_boundaries} tendría una profundidad de tres. Cada árbol realiza particiones aleatorias de modo que cada observación puede formar parte de varios árboles con distintas profundidades, por lo que el \textit{path length} final es la media de todos ellos. En la siguiente figura \ref{fig:isolation_forest} se observa como la primera observación ha necesitado de más particiones (más profundidad del árbol) para poder aislar la observación que el segundo caso, que ha necesitado de muchas menos, por ello este segundo punto tendrá una valoración más alta como anomalía.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/isolation.png}
+    \caption{Ejemplo de un árbol de \textit{Isolation Forest}}
+    \label{fig:isolation_forest}
+\end{figure}
+
+Para la categorización como anomalía se define una puntuación que ayude a determinar que puntos pueden ser anómalos y cuales no. Tomando la profundidad de un árbol como \( h(x)\) y la media de profundidad como \( E(h(x))\) se puede definir una puntuación utilizando la profundidad estimada media \( c(n)\):
+
+\begin{gather*}
+c(n) = 2H(n-1) - (2(n-1)/n) \\
+H(i) = ln(i) + 0.5772156649 \\
+s(x,n) = 2^{-\frac{E(h(x))}{c(n)}} \\
+\end{gather*}
+
+Donde \textit{n} es el número de observaciones totales, \textit{x} una observación y \(s(x,n)\) la puntuación de anomalía. Los resultados de la puntuación se pueden interpretar de la siguiente manera según el cociente de \( c(n)\) y \( E(h(x))\):
+\begin{itemize}
+    \item Un valor cercano a uno, indica que se trato posiblemente de una anomalía.
+    \item Un valor cercano a cero, indica que no es una anomalía.
+    \item Si todas las observaciones devuelven un valor cercano a 0.5 se puede considerar que no existen anomalías.
+\end{itemize}
+
+Además de esta puntuación, para favorecer a la detección de anomalías, \textit{Isolation Forest} utiliza técnicas de submuestreo o \textit{subsampling} que favorece la identificación de las anomalías y disminuye el coste computacional.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/subsample.png}
+    \caption{Submuestreo aplicado en \textit{Isolation Forest}}
+    \label{fig:subsample}
+\end{figure}
+
+\subsection{\textit{Autoencoder}}
+
+El funcionamiento y características generales de los \textit{Autoencoders} se ha explicado en la sección \ref{subsubsection:Autoencoders}, por lo que en este apartado se explicará la arquitectura escogida.
+
+Para este caso se ha construido un \textit{Deep Autoencoder}, es decir, varias capas ocultas que dependen de la cantidad de columnas de los datos de entrada, pero proporcionalmente mantiene la estructura. Consta de una capa de entrada, cinco capas intermedias (dos de \textit{Encoder}, dos de \textit{Decoder} y la representación de menor dimensionalidad) y una capa de salida.
+
+Las dimensiones de las capas intermedias están definidas de la siguiente forma:
+\begin{itemize}
+    \item \textit{\(Encoder_1\) y \(Decoder_1\)}: \(\frac{ncol}{5}\)
+    \item \textit{\(Encoder_2\) y \(Decoder_2\)}: \(\frac{ncol}{10}\)
+    \item Representación: \(\frac{ncol}{25}\)
+\end{itemize}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=10cm]{figs/ae_architecture.PNG}
+    \caption{Arquitectura básica del \textit{Autoencoder}}
+    \label{fig:ae_arch}
+\end{figure}
+
+Para la arquitectura anterior \ref{fig:ae_arch} se considera un \textit{dataset} con 50 columnas, por lo que la primera y penúltima capa tendrán 10 neuronas, las siguientes 5 neuronas y la capa central 2. El número de neuronas es proporcional al tamaño, por lo que crecerá acorde, redondeando hacia arriba para las divisiones no exactas. Las funciones de activación para las capas intermedias se trata de la activación \textit{reLu}, una función a tramos donde los valores cero o menores son cero y los mayores de cero mantienen el mismo valor. Para la de activación de la última capa se utiliza la tangente hiperbólica:
+\begin{equation}
+    S(x) = \frac{(e^x  - e^-x)}{(e^x  - e^-x)}
+\end{equation}
+
+Dado que el entrenamiento depende de la métrica de reconstrucción, esta se ha escogido acorde al tipo de datos con los que se entrena la red neuronal. Debido a las ventanas generadas y las agregaciones el tipo de variables resultantes son numéricas y en muy poca proporción por las variables de host hay 8 binarias, por ello la función de reconstrucción (o de pérdida para la red neuronal) utilizada es el error cuadrático medio \ref{eq:mse}.
+
+\begin{equation}\label{eq:mse}
+    MSE = \frac{1}{n}\sum_{t=1}^{n}X_i - \hat{X}
+\end{equation}
+
+Utilizando esta métrica, la red neuronal buscará disminuirlo lo máximo posible este error, aprendiendo de conexiones legítimas y anómalas. Aunque la red neuronal intente optimizar el error de estas últimas, se considera que la mayor parte de de las conexiones no son anómalas, por lo tanto la optimización en las anomalías no cobran tanto peso durante el entrenamiento y permiten diferenciarse del resto de puntos por el error de reconstrucción.
+
+\subsection{Ensamblado de modelos}
+
+Para el ensamblado de modelos se ha tomado como modelo principal el \textit{Isolation Forest}, esto se debe a que el \textit{Autoencoder} necesita un umbral a la hora de definir cuales son las anomalías, es decir, el valor del error de reconstrucción mínimo para considerarse una anomalía. 
+
+Para el  \textit{Isolation Forest} se ha utilizado la implementación de \textit{Scikit-Learn} donde se pueden definir distintos hiperparámetros, siendo los más comunes en número de estimadores o número de árboles, la cantidad de observaciones en el muestreo y un factor de contaminación, que define cual es la cantidad aproximada de anomalías. Tras distintas pruebas los hiperparámetros fueron los siguientes:
+
+\begin{itemize}
+    \item \textit{n\_estimators}: 500.
+    \item \textit{contamination}: 0.01 (se considera que las anomalías forman el 1\% del total).
+    \item \textit{min\_samples}: se utiliza el valor por defecto de 256.
+\end{itemize}
+
+Como entrada al modelo se utilizan los datos finales aplicando una normalización estándar, es decir, se resta la media a todas las observaciones y se divide entre la desviación típica. Por otro lado, los parámetros definidos el modelo encuentra alrededor de un 1\% de anomalías dentro de los \textit{datasets}, la cantidad de anomalías, \textit{n} , encontradas se utiliza como umbral para el \textit{Autoencoder} rescatando las \textit{n} observaciones con mayor error de reconstrucción, de ahí utilizar el \textit{Isolation Forest} como modelo principal para definir el posterior umbral.
+
+Para comprobar que tal se está efectuando se realiza una gráfica 3D utilizando los tres primeros componentes principales de un PCA y se utilizan las etiquetas de salida para diferenciar las observaciones. En la gráfica \ref{fig:pca_iso} se aprecia como las observaciones de color morado (anomalías) se encuentran esparcidas dentro del espacio mientras que existen puntos de gran concentración de color amarillo (no anómalo) con el resto de observaciones. De esta manera se puede comprobar que existen las premisas tomadas por el modelo, donde las anomalías están aisladas y son diferentes al resto.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/pca_iso.PNG}
+    \caption{Representación de los tres componentes principales y anomalías del \textit{Isolation Forest}}
+    \label{fig:pca_iso}
+\end{figure}
+
+Una vez definidas las anomalías iniciales, se entrena el \textit{Autoencoder} con los siguientes parámetros:
+
+\begin{itemize}
+    \item \textit{optimizer}: \textit{adam} (se probó con \textit{SGD} y \textit{adadelta} con peores resultados).
+    \item \textit{loss}: error cuadratico médio (\textit{MSE}).
+    \item \textit{epochs} (o épocas): el valor de 30 demostró ser el óptimo para los distintos \textit{datasets}.
+    \item \textit{batch\_size}: 256.
+\end{itemize}
+
+Una vez entrenado se vuelven a pasar todos los datos por la red y se generan los datos reconstruidos, con estos se calcula el error con los datos originales dando lugar a la siguiente gráfica:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/error.PNG}
+    \caption{Error de reconstrucción}
+    \label{fig:error}
+\end{figure}
+
+La línea roja muestra el valor medio del error de reconstrucción y muestra la gran densidad que existe en torno a este valor y como existen varias observaciones que se encuentran muy separadas de la esta zona. El umbral es el que permite clasificar que se considera como anomalía o no, pero en este caso no se utiliza el umbral si no las \textit{n} que más error contengan. Como con el modelo anterior se observa la clasificación utilizando los tres componentes principales \ref{fig:pca_ae}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{figs/pca_ae.PNG}
+    \caption{Representación de los tres componentes principales y anomalías del \textit{Autoencoder}}
+    \label{fig:pca_ae}
+\end{figure}
+
+
+Una vez definidas las distintas anomalías por los modelos se realiza un cruce y se seleccionan las anomalías que se hayan detectado en ambos, coincidiendo cerca de un 75\%.

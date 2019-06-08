@@ -1,0 +1,21 @@
+\chapter{Mejoras y Trabajos Futuros}
+\label{chapter:Mejoras}
+
+Uno de los puntos más importantes a mejorar, dado que también se considera un proceso iterativo, es el preprocesado de los datos, este proceso es necesario para poder mejorar los resultados obtenidos y mejorar el funcionamiento de los modelos empleados. Esta mejora puede producirse con un mayor conocimiento dentro del área, de redes y de dispositivos IoT. De esta manera se pueden generar variables que aporten más información y puedan ser más útiles.
+
+Como idea, en lugar de tratas las conexiones como un registro con variables de temporalidad y periodos comunes  repetidos en el mismo eje, se podrían tratar como imágenes, donde cada variable a la que se ha aplicado a la ventana fuera una fila de la imagen y las columnas el periodo único. De esta forma se podría aplicar un \textit{Convolutional Autoencoder} que pudiera obtener más información de las capas de convolución \cite{bankex}.
+
+Por otro lado, también se podría mejorar la interpretación de los resultados con un mayor conocimiento del área y se podría realizar una análisis de interpretabilidad de los modelos, es decir, encontrar el porqué el modelo muestra los resultados obtenidos. Muchas de estas herramientas están orientadas a conjuntos de datos etiquetados (\textit{LIME} \cite{DBLP:journals/corr/RibeiroSG16}), por lo que podría ser complicado.
+
+Otra mejora que se podría realizar es el análisis utilizando más datos, en este caso solo se están utilizando datos de un día en un periodo concreto. Con una cantidad mayor de datos se puede aprender la temporalidad de periodos más largos y detectar distintos tipos de anomalías. Con un día puede darse el caso de que lo que se ha detectado como anomalía es un patrón normal que se produce todos lo días, mientras que con los actuales al solo observar un periodo pequeño de tiempo lo clasifique como anomalía. 
+
+La definición de que es y no es anomalía se podría mejorar utilizando un conjunto de datos etiquetado como \textit{benchmark} para evaluar que tal ha funcionado el modelo. A causa de no tener un conjunto etiquetado no se puede definir un umbral que permita obtener el mejor ratio posible entre falsos positivos y valores reales. Con un conjunto etiquetado se podría utilizar la curva AUC - ROC (\textit{Area Under the Curve - Receiver Operating Characteristics}) que utiliza ese ratio para definir si las anomalías se están detectando correctamente y también para mejorar el balance entre falsos positivos y reales, dado que los modelos no son perfectos y ciertas conexiones pueden ser solo valores atípicos pero no anómalos. En este caso no se ha utilizado ningún conjunto de libre uso, dado que no se han encontrado con las mismas características o los que se encuentran disponibles son muy antiguos y no son aplicables a nuestro problema.
+
+Por último se podrían aplicar nuevas técnicas en el estado del arte, alguno de los ejemplos serían los siguientes:
+
+\begin{itemize}
+    \item Uso de \textit{Variational Autoencoders}.
+    \item Uso de redes neuronales LSTM.
+    \item Con un conjunto semi-etiquetado utilizar redes generativas antagónicas (o \textit{Generative Adversarial Networks}).
+    \item En el caso de disponer un conjunto de datos completamente etiquetado se podrían utilizar redes neuronales y \textit{Gradient Boosting} como los algoritmos de \textit{XGBoost, Catboost y LightGBM}.
+\end{itemize}
