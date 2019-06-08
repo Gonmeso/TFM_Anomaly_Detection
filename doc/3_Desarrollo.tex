@@ -534,7 +534,10 @@ Las dimensiones de las capas intermedias están definidas de la siguiente forma:
     \label{fig:ae_arch}
 \end{figure}
 
-Para la arquitectura anterior \ref{fig:ae_arch} se considera un \textit{dataset} con 50 columnas, por lo que la primera y penúltima capa tendrán 10 neuronas, las siguientes 5 neuronas y la capa central 2. El número de neuronas es proporcional al tamaño, por lo que crecerá acorde, redondeando hacia arriba para las divisiones no exactas.
+Para la arquitectura anterior \ref{fig:ae_arch} se considera un \textit{dataset} con 50 columnas, por lo que la primera y penúltima capa tendrán 10 neuronas, las siguientes 5 neuronas y la capa central 2. El número de neuronas es proporcional al tamaño, por lo que crecerá acorde, redondeando hacia arriba para las divisiones no exactas. Las funciones de activación para las capas intermedias se trata de la activación \textit{reLu}, una función a tramos donde los valores cero o menores son cero y los mayores de cero mantienen el mismo valor. Para la de activación de la última capa se utiliza la tangente hiperbólica:
+\begin{equation}
+    S(x) = \frac{(e^x  - e^-x)}{(e^x  - e^-x)}
+\end{equation}
 
 Dado que el entrenamiento depende de la métrica de reconstrucción, esta se ha escogido acorde al tipo de datos con los que se entrena la red neuronal. Debido a las ventanas generadas y las agregaciones el tipo de variables resultantes son numéricas y en muy poca proporción por las variables de host hay 8 binarias, por ello la función de reconstrucción (o de pérdida para la red neuronal) utilizada es el error cuadrático medio \ref{eq:mse}.
 
@@ -546,4 +549,53 @@ Utilizando esta métrica, la red neuronal buscará disminuirlo lo máximo posibl
 
 \subsection{Ensamblado de modelos}
 
-Para el ensamblado de modelos se ha tomado como modelo "principal" el \textit{Isolation Forest}
+Para el ensamblado de modelos se ha tomado como modelo principal el \textit{Isolation Forest}, esto se debe a que el \textit{Autoencoder} necesita un umbral a la hora de definir cuales son las anomalías, es decir, el valor del error de reconstrucción mínimo para considerarse una anomalía. 
+
+Para el  \textit{Isolation Forest} se ha utilizado la implementación de \textit{Scikit-Learn} donde se pueden definir distintos hiperparámetros, siendo los más comunes en número de estimadores o número de árboles, la cantidad de observaciones en el muestreo y un factor de contaminación, que define cual es la cantidad aproximada de anomalías. Tras distintas pruebas los hiperparámetros fueron los siguientes:
+
+\begin{itemize}
+    \item \textit{n\_estimators}: 500.
+    \item \textit{contamination}: 0.01 (se considera que las anomalías forman el 1\% del total).
+    \item \textit{min\_samples}: se utiliza el valor por defecto de 256.
+\end{itemize}
+
+Como entrada al modelo se utilizan los datos finales aplicando una normalización estándar, es decir, se resta la media a todas las observaciones y se divide entre la desviación típica. Por otro lado, los parámetros definidos el modelo encuentra alrededor de un 1\% de anomalías dentro de los \textit{datasets}, la cantidad de anomalías, \textit{n} , encontradas se utiliza como umbral para el \textit{Autoencoder} rescatando las \textit{n} observaciones con mayor error de reconstrucción, de ahí utilizar el \textit{Isolation Forest} como modelo principal para definir el posterior umbral.
+
+Para comprobar que tal se está efectuando se realiza una gráfica 3D utilizando los tres primeros componentes principales de un PCA y se utilizan las etiquetas de salida para diferenciar las observaciones. En la gráfica \ref{fig:pca_iso} se aprecia como las observaciones de color morado (anomalías) se encuentran esparcidas dentro del espacio mientras que existen puntos de gran concentración de color amarillo (no anómalo) con el resto de observaciones. De esta manera se puede comprobar que existen las premisas tomadas por el modelo, donde las anomalías están aisladas y son diferentes al resto.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/pca_iso.PNG}
+    \caption{Representación de los tres componentes principales y anomalías del \textit{Isolation Forest}}
+    \label{fig:pca_iso}
+\end{figure}
+
+Una vez definidas las anomalías iniciales, se entrena el \textit{Autoencoder} con los siguientes parámetros:
+
+\begin{itemize}
+    \item \textit{optimizer}: \textit{adam} (se probó con \textit{SGD} y \textit{adadelta} con peores resultados).
+    \item \textit{loss}: error cuadratico médio (\textit{MSE}).
+    \item \textit{epochs} (o épocas): el valor de 30 demostró ser el óptimo para los distintos \textit{datasets}.
+    \item \textit{batch\_size}: 256.
+\end{itemize}
+
+Una vez entrenado se vuelven a pasar todos los datos por la red y se generan los datos reconstruidos, con estos se calcula el error con los datos originales dando lugar a la siguiente gráfica:
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=12cm]{figs/error.PNG}
+    \caption{Error de reconstrucción}
+    \label{fig:error}
+\end{figure}
+
+La línea roja muestra el valor medio del error de reconstrucción y muestra la gran densidad que existe en torno a este valor y como existen varias observaciones que se encuentran muy separadas de la esta zona. El umbral es el que permite clasificar que se considera como anomalía o no, pero en este caso no se utiliza el umbral si no las \textit{n} que más error contengan. Como con el modelo anterior se observa la clasificación utilizando los tres componentes principales \ref{fig:pca_ae}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm]{figs/pca_ae.PNG}
+    \caption{Representación de los tres componentes principales y anomalías del \textit{Autoencoder}}
+    \label{fig:pca_ae}
+\end{figure}
+
+
+Una vez definidas las distintas anomalías por los modelos se realiza un cruce y se seleccionan las anomalías que se hayan detectado en ambos, coincidiendo cerca de un 75\%.
